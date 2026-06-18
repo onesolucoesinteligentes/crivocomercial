@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crivo de Crédito — TurboNet Telecom</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0a0b0f; --surf:#12141a; --surf2:#1a1d26; --border:#252836;
@@ -13,259 +12,263 @@
   --yel:#f5a623; --yel-l:rgba(245,166,35,0.12);
   --grn:#2ecc71; --grn-l:rgba(46,204,113,0.12);
   --blu:#3b82f6; --blu-l:rgba(59,130,246,0.12);
-  --navy:#1a3a6b;
-  --text:#e8eaf0; --muted:#6b7280; --white:#fff;
+  --navy:#1a3a6b; --text:#e8eaf0; --muted:#6b7280;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;min-height:100vh}
 
-/* HEADER */
-header{background:var(--navy);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--red)}
-.logo{font-weight:700;font-size:16px;letter-spacing:-0.3px}
+header{background:var(--navy);padding:0 36px;height:58px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--red);position:sticky;top:0;z-index:100}
+.logo{font-weight:700;font-size:15px;letter-spacing:-0.3px}
 .logo span{color:var(--red)}
-.header-sub{font-size:11px;color:rgba(255,255,255,0.5);text-align:right}
+.logo-badge{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:4px;margin-left:8px}
+.badge-live{background:rgba(46,204,113,0.2);color:var(--grn)}
+.badge-static{background:rgba(245,166,35,0.2);color:var(--yel)}
+.header-right{display:flex;align-items:center;gap:10px}
+.header-sub{font-size:10px;color:rgba(255,255,255,0.45);text-align:right;line-height:1.5}
+.import-btn-hdr{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:6px 12px;color:rgba(255,255,255,0.8);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.import-btn-hdr:hover{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.3)}
 
-/* LAYOUT */
-.page{max-width:1100px;margin:0 auto;padding:32px 24px}
+.page{max-width:1240px;margin:0 auto;padding:26px 24px}
+
+/* IMPORT PANEL */
+.import-panel{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:28px;margin-bottom:24px;display:none}
+.import-panel.open{display:block}
+.import-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.import-desc{font-size:12px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.import-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.import-zone{background:var(--surf2);border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .22s;position:relative}
+.import-zone:hover,.import-zone.drag{border-color:var(--blu);background:var(--blu-l)}
+.import-zone.done{border-color:var(--grn);border-style:solid;background:var(--grn-l)}
+.import-zone.error{border-color:var(--red);border-style:solid;background:var(--red-l)}
+.import-zone input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.iz-icon{font-size:28px;margin-bottom:8px}
+.iz-title{font-size:12.5px;font-weight:600;margin-bottom:4px}
+.iz-hint{font-size:11px;color:var(--muted)}
+.iz-status{font-size:11px;font-weight:600;margin-top:8px;font-family:'IBM Plex Mono',monospace}
+.btn-process{width:100%;padding:12px;background:var(--navy);border:1px solid #3a62b0;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-process:hover:not(:disabled){background:#1e4480}
+.btn-process:disabled{opacity:.45;cursor:not-allowed}
+.process-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STATUS BAR */
+.status-bar{background:var(--surf2);border:1px solid var(--border);border-radius:8px;padding:11px 16px;margin-bottom:20px;display:flex;align-items:center;gap:14px;font-size:11.5px;flex-wrap:wrap}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.grn{background:var(--grn)}
+.status-dot.yel{background:var(--yel)}
+.status-kpi{font-family:'IBM Plex Mono',monospace;font-size:11px}
+.status-kpi span{color:var(--grn);font-weight:600}
+.status-sep{color:var(--border)}
+
+/* CONFIG */
+.config-banner{background:var(--navy);border:1px solid rgba(59,130,246,0.35);border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.config-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5)}
+.config-score-display{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;color:#fff;min-width:48px;line-height:1}
+.config-slider{-webkit-appearance:none;flex:1;min-width:160px;height:6px;border-radius:3px;background:linear-gradient(to right,var(--red) 0%,var(--yel) 40%,var(--grn) 75%);outline:none;cursor:pointer}
+.config-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blu);cursor:pointer}
+.config-presets{display:flex;gap:6px;flex-wrap:wrap}
+.preset-btn{padding:4px 10px;border-radius:5px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .18s}
+.preset-btn:hover{border-color:var(--blu);color:var(--blu)}
+.preset-btn.active{border-color:var(--grn);color:var(--grn);background:var(--grn-l)}
+.config-delta{font-size:11px;color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace}
+.config-delta span{color:var(--yel)}
 
 /* TABS */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:28px}
-.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .18s;margin-bottom:-1px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .18s;margin-bottom:-1px;white-space:nowrap}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--text);border-bottom-color:var(--red)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
-/* SECTION TITLE */
-.sec{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sec{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* SIMULADOR */
-.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px}
-.card-title{font-size:13px;font-weight:600;margin-bottom:18px;color:var(--text)}
-
-.field{margin-bottom:14px}
-.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-.field input,.field select{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:7px;padding:9px 13px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+/* SIMULATOR */
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:20px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;outline:none;transition:border-color .2s}
 .field input:focus,.field select:focus{border-color:var(--blu)}
 .field select option{background:var(--surf2)}
-
-.toggle-row{display:flex;gap:10px}
-.toggle-btn{flex:1;padding:9px;border-radius:7px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;text-align:center}
+.toggle-row{display:flex;gap:7px}
+.toggle-btn{flex:1;padding:8px;border-radius:7px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .2s;text-align:center}
 .toggle-btn.active-sim{border-color:var(--red);color:var(--red);background:var(--red-l)}
 .toggle-btn.active-nao{border-color:var(--grn);color:var(--grn);background:var(--grn-l)}
-
-.btn-analisar{width:100%;margin-top:20px;padding:13px;background:var(--navy);border:1px solid #2a52a0;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'IBM Plex Sans',sans-serif}
+.btn-analisar{width:100%;margin-top:16px;padding:11px;background:var(--navy);border:1px solid #2a52a0;border-radius:8px;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'IBM Plex Sans',sans-serif}
 .btn-analisar:hover{background:#1e4480}
 
 /* RESULTADO */
-.resultado{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;min-height:280px;display:flex;flex-direction:column;gap:14px}
-.resultado.empty{align-items:center;justify-content:center;color:var(--muted);font-size:13px}
-.res-decisao{border-radius:8px;padding:18px;text-align:center;margin-bottom:4px}
-.res-decisao .dec-label{font-size:20px;font-weight:700;margin-bottom:4px}
-.res-decisao .dec-sub{font-size:11px;opacity:0.8}
-.res-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.resultado{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:20px;min-height:260px;display:flex;flex-direction:column;gap:11px}
+.resultado.empty{align-items:center;justify-content:center;color:var(--muted);font-size:12.5px}
+.res-decisao{border-radius:8px;padding:15px;text-align:center;margin-bottom:2px}
+.dec-label{font-size:18px;font-weight:700;margin-bottom:3px}
+.dec-sub{font-size:10.5px;opacity:.8}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11.5px}
 .res-row:last-child{border-bottom:none}
 .res-key{color:var(--muted)}
 .res-val{font-family:'IBM Plex Mono',monospace;font-weight:500}
-.res-badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace}
-
-/* PILL */
+.res-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace}
 .pill-red{background:var(--red-l);color:var(--red)}
 .pill-org{background:var(--org-l);color:var(--org)}
 .pill-yel{background:var(--yel-l);color:var(--yel)}
 .pill-grn{background:var(--grn-l);color:var(--grn)}
 .pill-blu{background:var(--blu-l);color:var(--blu)}
+.pill-muted{background:var(--surf2);color:var(--muted)}
 
-/* CIDADE TABLE */
-.city-table-wrap{background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.city-table{width:100%;border-collapse:collapse}
-.city-table th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 14px;background:var(--surf2);border-bottom:1px solid var(--border)}
-.city-table td{padding:9px 14px;font-size:12px;border-bottom:1px solid var(--border)}
-.city-table tr:last-child td{border-bottom:none}
-.city-table tr:hover td{background:var(--surf2)}
-.tier-sec{background:var(--surf2);font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 14px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
+/* TABLES */
+.tbl-wrap{background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:9px 13px;background:var(--surf2);border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl th.r{text-align:right}
+.tbl td{padding:9px 13px;font-size:11.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surf2)}
+.tbl .tier-sec td{background:var(--surf2)!important;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 13px!important}
+.tbl .prod-sec td{background:#1e2a3a!important;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 8px!important;color:var(--muted)!important}
 
-/* PRODUTO TABLE */
-.prod-table-wrap{background:var(--surf);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
-.prod-table{width:100%;border-collapse:collapse}
-.prod-table th{text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:9px 8px;background:var(--surf2);border-bottom:1px solid var(--border)}
-.prod-table th:first-child{text-align:left}
-.prod-table td{padding:8px 8px;font-size:11px;border-bottom:1px solid var(--border);text-align:center}
-.prod-table td:first-child{text-align:left;font-weight:500}
-.prod-table tr:last-child td{border-bottom:none}
-.prod-table tr:hover td{background:var(--surf2)}
-.prod-sec{font-size:10px;font-weight:700;letter-spacing:1px;padding:5px 8px;background:#1e2a3a;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border)}
-.prod-sec td{padding:5px 8px!important;background:#1e2a3a!important;color:var(--muted)!important;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:10px}
+/* TAXA BAR */
+.taxa-bar{display:flex;align-items:center;gap:8px}
+.taxa-track{width:70px;height:5px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
+.taxa-fill{height:100%;border-radius:2px}
 
-/* INFO BOX */
-.info-box{background:var(--yel-l);border:1px solid rgba(245,166,35,0.3);border-left:3px solid var(--yel);border-radius:8px;padding:14px 16px;font-size:12px;color:var(--yel);margin-bottom:20px}
-.info-box strong{display:block;margin-bottom:3px}
+/* ALERTS */
+.alert{border-radius:8px;padding:12px 15px;font-size:11.5px;margin-bottom:16px;line-height:1.6}
+.alert-yel{background:var(--yel-l);border:1px solid rgba(245,166,35,.3);color:var(--yel)}
+.alert-grn{background:var(--grn-l);border:1px solid rgba(46,204,113,.3);color:var(--grn)}
+.alert-blu{background:var(--blu-l);border:1px solid rgba(59,130,246,.3);color:var(--blu)}
 
-/* FLUXO */
-.fluxo{display:flex;gap:0;margin-bottom:28px;align-items:stretch}
-.fluxo-step{flex:1;background:var(--surf);border:1px solid var(--border);padding:16px 14px;position:relative}
-.fluxo-step:first-child{border-radius:8px 0 0 8px}
-.fluxo-step:last-child{border-radius:0 8px 8px 0}
-.fluxo-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;z-index:2}
-.fluxo-step:last-child::after{display:none}
-.fluxo-num{width:22px;height:22px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;margin-bottom:8px}
-.fluxo-title{font-size:11px;font-weight:600;margin-bottom:4px}
-.fluxo-desc{font-size:10px;color:var(--muted);line-height:1.5}
+/* HISTORY */
+.history-item{background:var(--surf);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hi-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)}
+.hi-info{flex:1;font-size:12px}
+.hi-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;margin-left:8px}
 
 
-  /* CONFIGURADOR */
-  .config-banner {
-    background: var(--navy);
-    border: 1px solid rgba(59,130,246,0.4);
-    border-radius: 10px;
-    padding: 18px 24px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-  .config-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.6); }
-  .config-score-display {
-    font-family:'IBM Plex Mono',monospace;
-    font-size:32px;
-    font-weight:700;
-    color:#fff;
-    min-width:60px;
-    line-height:1;
-  }
-  .config-slider {
-    -webkit-appearance:none;
-    flex:1;
-    min-width:200px;
-    height:6px;
-    border-radius:3px;
-    background: linear-gradient(to right, var(--red) 0%, var(--yel) 40%, var(--grn) 75%);
-    outline:none;
-    cursor:pointer;
-  }
-  .config-slider::-webkit-slider-thumb {
-    -webkit-appearance:none;
-    width:20px; height:20px;
-    border-radius:50%;
-    background:#fff;
-    border:3px solid var(--blu);
-    cursor:pointer;
-    box-shadow:0 2px 6px rgba(0,0,0,0.4);
-  }
-  .config-presets { display:flex; gap:8px; flex-wrap:wrap; }
-  .preset-btn {
-    padding:5px 12px;
-    border-radius:6px;
-    border:1px solid var(--border);
-    background:var(--surf2);
-    color:var(--muted);
-    font-size:11px;
-    font-family:'IBM Plex Mono',monospace;
-    cursor:pointer;
-    transition:all .18s;
-  }
-  .preset-btn:hover { border-color:var(--blu); color:var(--blu); }
-  .preset-btn.active { border-color:var(--grn); color:var(--grn); background:var(--grn-l); }
-  .config-delta {
-    font-size:11px;
-    color:rgba(255,255,255,0.5);
-    font-family:'IBM Plex Mono',monospace;
-  }
-  .config-delta span { color:var(--yel); }
-  .impact-tag {
-    display:inline-block;
-    padding:3px 10px;
-    border-radius:999px;
-    font-size:10px;
-    font-family:'IBM Plex Mono',monospace;
-    font-weight:600;
-  }
-
-footer{border-top:1px solid var(--border);padding:16px 40px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
+/* PRODUCT FILTER BAR */
+.prod-filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.prod-filter-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surf2);
+  color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap}
+.prod-filter-btn:hover{border-color:var(--blu);color:var(--blu)}
+.prod-filter-btn.active{border-color:var(--grn);color:var(--grn);background:var(--grn-l);font-weight:600}
+.prod-filter-label{font-size:11px;color:var(--muted);margin-right:4px;flex-shrink:0}
+.taxa-delta{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:1px 6px;border-radius:3px;margin-left:4px}
+.delta-high{background:var(--red-l);color:var(--red)}
+.delta-low{background:var(--grn-l);color:var(--grn)}
+.btn-save-hint{font-size:10.5px;color:var(--muted);text-align:center;margin-top:8px;display:none}
+footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
 </style>
 </head>
 <body>
+
 <header>
-  <div class="logo">TURBONET <span>CRIVO DE CRÉDITO</span></div>
-  <div class="header-sub">Regras para novos clientes · Calibrado Serasa Abr/2026<br>Regra base: Score &lt; 400 = Negado · Score ≥ 400 = Aprovado</div>
+  <div class="logo">
+    TURBONET <span>CRIVO DE CRÉDITO</span>
+    <span class="logo-badge badge-live" id="dataBadge">Dados ativos · junho de 2026</span>
+  </div>
+  <div class="header-right">
+    <div class="header-sub" id="headerMeta">19.187 contratos · 984 Serasa<br>Atualizado: junho de 2026</div>
+    <button class="import-btn-hdr" onclick="toggleImport()">
+      📥 Atualizar Base
+    </button>
+  </div>
 </header>
+
+<!-- IMPORT PANEL -->
+<div class="page" style="padding-bottom:0"><div id="saveBanner" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 10px; padding: 13px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; font-size: 12px;">
+        <span style="font-size:20px">✅</span>
+        <div style="flex:1">
+          <strong style="color:var(--grn)">Base atualizada com sucesso!</strong>
+          <span style="color:var(--muted);margin-left:10px">18/06/2026, 08:28:55</span><br>
+          <span style="color:var(--muted)">Clique em <strong style="color:var(--grn)">💾 Salvar HTML</strong> para gerar um arquivo com os dados desta importação permanentemente embutidos.</span>
+        </div>
+        <button onclick="saveHtml()" style="background:#1a4a2e;border:1px solid #2a7a46;border-radius:7px;padding:8px 16px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">💾 Salvar HTML</button>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>
+      </div>
+  <div class="import-panel" id="importPanel">
+    <div class="import-title">📥 Atualização Mensal da Base de Dados</div>
+    <div class="import-desc">
+      Importe as duas planilhas mensalmente para recalcular automaticamente as taxas de inadimplência por cidade, os tiers de risco e todos os thresholds do crivo.<br>
+      <strong>Força de Vendas:</strong> coluna "Cidade", "ID Contrato", "Status Contrato", "Motivo Cancelamento" obrigatórias.<br>
+      <strong>Consulta Serasa:</strong> coluna "Cidade", "SCORE", "Dívidas comerciais - Pefin", "Dívidas Protestadas" obrigatórias.
+    </div>
+    <div class="import-grid">
+      <div class="import-zone done" id="zone-fv" ondragover="dragOver(event,'fv')" ondragleave="dragLeave('fv')" ondrop="dropFile(event,'fv')">
+        <input type="file" accept=".xlsx,.xls" onchange="loadFile(event,'fv')">
+        <div class="iz-icon" id="icon-fv">✅</div>
+        <div class="iz-title">Força de Vendas</div>
+        <div class="iz-hint">Força_de_Vendas.xlsx</div>
+        <div class="iz-status" id="status-fv" style="color: var(--grn);">19.187 registros · Força de Vendas.xlsx</div>
+      </div>
+      <div class="import-zone done" id="zone-se" ondragover="dragOver(event,'se')" ondragleave="dragLeave('se')" ondrop="dropFile(event,'se')">
+        <input type="file" accept=".xlsx,.xls" onchange="loadFile(event,'se')">
+        <div class="iz-icon" id="icon-se">✅</div>
+        <div class="iz-title">Consulta Serasa</div>
+        <div class="iz-hint">CONSULTA_SERASA.xlsx</div>
+        <div class="iz-status" id="status-se" style="color: var(--grn);">984 registros · 2026 - 1º Trimestre - Consulta Serasa.xlsx</div>
+      </div>
+    </div>
+    <button class="btn-process" id="btnProcess" onclick="processFiles()">
+      <div class="process-spinner" id="procSpinner" style="display: none;"></div>
+      <span id="btnProcessLabel">⚡ Recalcular Crivo</span>
+    </button>
+    <button class="btn-process" id="btnSaveHtml" onclick="saveHtml()" style="margin-top: 10px; background: rgb(26, 74, 46); border-color: rgb(42, 122, 70); display: flex;">
+      💾 Salvar HTML com dados embutidos
+    </button>
+  </div>
+</div>
 
 <div class="page">
 
-  <!-- CONFIGURADOR GLOBAL -->
-  <div class="config-banner" id="configBanner">
+  <!-- STATUS BAR -->
+  <div class="status-bar" id="statusBar">
+    <div class="status-dot grn"></div>
+    <span id="statusText">Dados atualizados · junho de 2026</span>
+    <span class="status-sep">|</span>
+    <span class="status-kpi">Contratos: <span id="skTotal">19.187</span></span>
+    <span class="status-sep">|</span>
+    <span class="status-kpi">Serasa: <span id="skSerasa">984</span></span>
+    <span class="status-sep">|</span>
+    <span class="status-kpi">Cidades ativas: <span id="skCidades">20</span></span>
+    <span class="status-sep">|</span>
+    <span class="status-kpi">Taxa média: <span id="skTaxa">9.5%</span></span>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="config-banner">
+    <div><div class="config-label">Score Base</div><div class="config-score-display" id="baseDisplay">400</div></div>
+    <input type="range" class="config-slider" id="baseSlider" min="300" max="500" step="10" value="400" oninput="updateBase(this.value)">
     <div>
-      <div class="config-label">Score Base</div>
-      <div class="config-score-display" id="baseDisplay">400</div>
-    </div>
-    <input type="range" class="config-slider" id="baseSlider"
-           min="300" max="500" step="10" value="400"
-           oninput="updateBase(this.value)">
-    <div>
-      <div class="config-label" style="margin-bottom:6px">Presets rápidos</div>
+      <div class="config-label" style="margin-bottom:5px">Presets</div>
       <div class="config-presets">
         <button class="preset-btn" id="preset-300" onclick="setBase(300)">300</button>
         <button class="preset-btn" id="preset-350" onclick="setBase(350)">350</button>
-        <button class="preset-btn active" onclick="setBase(400)" id="preset-400">400 (atual)</button>
+        <button class="preset-btn active" id="preset-400" onclick="setBase(400)">400 (atual)</button>
         <button class="preset-btn" id="preset-450" onclick="setBase(450)">450</button>
         <button class="preset-btn" id="preset-500" onclick="setBase(500)">500</button>
       </div>
     </div>
-    <div class="config-delta" id="configDelta">
-      Delta vs atual: <span id="deltaVal">±0</span><br>
-      Padrão mínimo: <span id="minVal">400</span> · Aprovado direto: <span id="aprovVal">425</span>
-    </div>
+    <div class="config-delta">Delta: <span id="deltaVal">±0</span><br>Mín. PADRÃO: <span id="minVal">400</span> · Aprovado: <span id="aprovVal">425</span></div>
   </div>
 
+  <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('simulador',this)">🔎 Simulador</button>
-    <button class="tab" onclick="switchTab('cidades',this)">🏙️ Crivo por Cidade</button>
-    <button class="tab" onclick="switchTab('produtos',this)">📦 Matriz de Produtos</button>
-    <button class="tab" onclick="switchTab('fluxo',this)">📋 Fluxo de Decisão</button>
+    <button class="tab" onclick="switchTab('simulador',this)">🔎 Simulador</button>
+    <button class="tab active" onclick="switchTab('cidades',this)">🏙️ Crivo por Cidade</button>
+    <button class="tab" onclick="switchTab('produtos',this)">📦 Matriz Produtos</button>
+    <button class="tab" onclick="switchTab('historico',this)">🕐 Histórico</button>
   </div>
 
   <!-- ── SIMULADOR ── -->
-  <div id="tab-simulador" class="tab-panel active">
+  <div id="tab-simulador" class="tab-panel">
     <div class="sec">Consulta de Aprovação — Novo Cliente</div>
-    <div class="info-box">
-      <strong>⚠ Regra base atual da empresa</strong>
-      Score Serasa &lt; 400 → Negado &nbsp;|&nbsp; Score ≥ 400 → Aprovado. Este simulador refina essa regra por cidade e produto.
-    </div>
     <div class="sim-grid">
       <div class="card">
         <div class="card-title">Dados do Cliente</div>
-        <div class="field"><label>Nome do cliente</label><input id="f-nome" type="text" placeholder="Nome completo"></div>
-        <div class="field"><label>Cidade</label>
-          <select id="f-cidade">
-            <option value="">Selecionar cidade...</option>
-            <optgroup label="🔴 RESTRITO">
-              <option value="Pirangi">Pirangi</option>
-              <option value="Bebedouro">Bebedouro</option>
-              <option value="Olímpia">Olímpia</option>
-              <option value="Barretos">Barretos</option>
-              <option value="Severínia">Severínia</option>
-              <option value="Paraíso">Paraíso</option>
-            </optgroup>
-            <optgroup label="🟡 MODERADO">
-              <option value="Vista Alegre Do Alto">Vista Alegre do Alto</option>
-              <option value="Colômbia">Colômbia</option>
-              <option value="Monte Azul Paulista">Monte Azul Paulista</option>
-              <option value="Guaraci">Guaraci</option>
-              <option value="Outras cidades">Outras cidades</option>
-            </optgroup>
-            <optgroup label="🟢 PADRÃO">
-              <option value="Cajobi">Cajobi</option>
-              <option value="Jaborandi">Jaborandi</option>
-              <option value="Catigua">Catigua</option>
-              <option value="Tabapuã">Tabapuã</option>
-              <option value="Catanduva">Catanduva</option>
-              <option value="Potirendaba">Potirendaba</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="field"><label>Produto Desejado</label>
+        <div class="field"><label>Nome</label><input id="f-nome" type="text" placeholder="Nome completo"></div>
+        <div class="field"><label>Cidade</label><select id="f-cidade"><option value="">Selecionar cidade...</option><optgroup label="🔴 RESTRITO (taxa ≥ 12%)"><option value="Palmares Paulista">Palmares Paulista — 22.5%</option><option value="Onda Verde">Onda Verde — 14.5%</option><option value="Paraíso">Paraíso — 13.9%</option></optgroup><optgroup label="🟡 MODERADO (taxa 7–12%)"><option value="Colômbia">Colômbia — 11.9%</option><option value="Taiaçu">Taiaçu — 11.9%</option><option value="Barretos">Barretos — 11.5%</option><option value="Pirangi">Pirangi — 9.4%</option><option value="Taiúva">Taiúva — 9.3%</option><option value="Novais">Novais — 9.1%</option><option value="Tabapuã">Tabapuã — 9%</option><option value="Severínia">Severínia — 8.8%</option><option value="Bebedouro">Bebedouro — 8.6%</option><option value="Altair">Altair — 8.1%</option><option value="Guaraci">Guaraci — 7.8%</option><option value="Monte Azul Paulista">Monte Azul Paulista — 7%</option></optgroup><optgroup label="🟢 PADRÃO (taxa &lt; 7%)"><option value="Vista Alegre Do Alto">Vista Alegre Do Alto — 6.6%</option><option value="Olímpia">Olímpia — 6.2%</option><option value="Taquaral">Taquaral — 5.1%</option><option value="Embaúba">Embaúba — 4.2%</option><option value="Cajobi">Cajobi — 3.8%</option></optgroup><optgroup label="⚪ Outras (usar tier Moderado)"><option value="Outras cidades">Outras cidades</option></optgroup></select></div>
+        <div class="field"><label>Produto</label>
           <select id="f-produto">
             <option value="">Selecionar produto...</option>
             <option value="Telefonia Fixa">Telefonia Fixa</option>
@@ -274,14 +277,14 @@ footer{border-top:1px solid var(--border);padding:16px 40px;font-family:'IBM Ple
             <option value="Internet (todos os planos)">Internet (todos os planos)</option>
           </select>
         </div>
-        <div class="field"><label>Score Serasa (consultado)</label><input id="f-score" type="number" min="0" max="1000" placeholder="0 – 1000"></div>
+        <div class="field"><label>Score Serasa</label><input id="f-score" type="number" min="0" max="1000" placeholder="0 – 1000"></div>
         <div class="field"><label>Possui Pefin Ativo?</label>
           <div class="toggle-row">
             <button class="toggle-btn" id="pefin-sim" onclick="setToggle('pefin','SIM')">SIM</button>
             <button class="toggle-btn" id="pefin-nao" onclick="setToggle('pefin','NÃO')">NÃO</button>
           </div>
         </div>
-        <div class="field"><label>Possui Protesto em Cartório?</label>
+        <div class="field"><label>Possui Protesto?</label>
           <div class="toggle-row">
             <button class="toggle-btn" id="protesto-sim" onclick="setToggle('protesto','SIM')">SIM</button>
             <button class="toggle-btn" id="protesto-nao" onclick="setToggle('protesto','NÃO')">NÃO</button>
@@ -289,362 +292,1338 @@ footer{border-top:1px solid var(--border);padding:16px 40px;font-family:'IBM Ple
         </div>
         <button class="btn-analisar" onclick="analisar()">▶ Analisar Crédito</button>
       </div>
-
       <div class="card resultado empty" id="resultado">
-        <div style="font-size:32px;margin-bottom:12px">🔍</div>
-        <div>Preencha os dados ao lado e clique em Analisar</div>
+        <div style="font-size:26px;margin-bottom:8px">🔍</div>
+        <div>Preencha os dados e clique em Analisar</div>
       </div>
     </div>
   </div>
 
   <!-- ── CIDADES ── -->
-  <div id="tab-cidades" class="tab-panel">
-    <div class="sec">Score Mínimo Serasa por Cidade</div>
-    <div class="info-box"><strong>Como ler esta tabela</strong>Score abaixo do mínimo = NEGADO · Zona Cinza = aprovação manual do gestor · Score Aprovado = aprovação direta</div>
-    <div class="city-table-wrap">
-      <table class="city-table">
-        <thead><tr>
-          <th>Cidade</th><th>Tier</th><th>Cancels Hist.</th><th>% Críticos</th>
-          <th>Score Serasa Hist.</th><th style="color:var(--red)">Score Mínimo</th>
-          <th style="color:var(--yel)">Zona Cinza</th><th style="color:var(--grn)">Score Aprovado ≥</th>
-        </tr></thead>
-        <tbody id="city-body"></tbody>
-      </table>
+  <div id="tab-cidades" class="tab-panel active">
+    <div class="sec">Crivo por Cidade — Taxa Real de Inadimplência</div>
+    <div class="alert alert-yel" style="margin-bottom:14px">
+      <strong>Metodologia v2:</strong> Tier calculado pela taxa de inadimplência real (cancelamentos ÷ total de contratos). RESTRITO ≥ 12% · MODERADO 7–12% · PADRÃO &lt; 7%. Mín. 50 contratos para classificação.
     </div>
+    <div class="prod-filter-bar">
+      <span class="prod-filter-label">Filtrar por produto:</span>
+      <button class="prod-filter-btn active" onclick="setProdFilter('Todos',this)">Todos (geral)</button>
+      <button class="prod-filter-btn" onclick="setProdFilter('Internet',this)">🌐 Internet</button>
+      <button class="prod-filter-btn" onclick="setProdFilter('TV',this)">📺 TV</button>
+      <button class="prod-filter-btn" onclick="setProdFilter('Telefonia Móvel',this)">📱 Telefonia Móvel</button>
+      <button class="prod-filter-btn" onclick="setProdFilter('Telefonia Fixa',this)">☎️ Telefonia Fixa</button>
+    </div>
+    <div id="prodFilterNote" style="display: none;" class="alert alert-blu">📊 Exibindo contratos e taxa de inadimplência exclusivamente para <strong>Internet</strong>. Cidades reordenadas pela taxa do produto. Cidades sem volume mínimo (10 contratos) são ocultadas.</div>
+    <div class="tbl-wrap"><table class="tbl" id="cityTable">
+      <thead><tr>
+        <th>Cidade</th><th>Tier</th><th class="r">Contratos</th><th class="r">Inadimpl.</th>
+        <th id="taxaColHeader">Taxa Real (geral)</th>
+        <th style="color:var(--red)">Score Mín.</th>
+        <th style="color:var(--yel)">Zona Cinza</th>
+        <th style="color:var(--grn)">Aprovado ≥</th>
+      </tr></thead>
+      <tbody id="cityBody"><tr class="tier-sec"><td colspan="8" style="color:var(--red)">● RESTRITO — Taxa · Taxa geral ≥ 12%</td></tr><tr>
+      <td style="font-weight:500">Palmares Paulista</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">169</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">38</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:75%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">22.5%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
+      <td style="font-weight:500">Onda Verde</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">165</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">24</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:48.333333333333336%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">14.5%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
+      <td style="font-weight:500">Paraíso</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">296</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">41</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:46.33333333333333%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">13.9%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--yel)">● MODERADO — Taxa · Taxa geral 7–12%</td></tr><tr>
+      <td style="font-weight:500">Colômbia</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">683</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">81</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:39.666666666666664%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.9%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Taiaçu</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">243</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">29</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:39.666666666666664%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.9%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Barretos</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4.444</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">510</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:38.333333333333336%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.5%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Pirangi</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">415</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">39</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:31.333333333333336%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.4%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Taiúva</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">215</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">20</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:31%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.3%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Novais</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">351</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">32</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:30.333333333333336%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.1%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Tabapuã</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">701</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">63</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:30%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Severínia</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.193</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">105</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:29.333333333333332%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Bebedouro</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2.905</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">250</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:28.666666666666668%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.6%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Altair</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">235</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">19</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:26.999999999999996%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.1%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Guaraci</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">927</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">72</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:26%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">7.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr>
+      <td style="font-weight:500">Monte Azul Paulista</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">964</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">67</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:23.333333333333332%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">7%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--grn)">● PADRÃO — Taxa · Taxa geral &lt; 7%</td></tr><tr>
+      <td style="font-weight:500">Vista Alegre Do Alto</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">381</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">25</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:22%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">6.6%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Olímpia</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">3.403</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">211</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:20.666666666666668%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">6.2%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Taquaral</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">136</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">7</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:17%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">5.1%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Embaúba</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">166</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">7</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:14.000000000000002%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">4.2%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Cajobi</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.115</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">42</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:12.666666666666664%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">3.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr></tbody>
+    </table></div>
   </div>
 
   <!-- ── PRODUTOS ── -->
   <div id="tab-produtos" class="tab-panel">
-    <div class="sec">Matriz de Produtos × Tier de Cidade</div>
-    <div class="info-box"><strong>Importante</strong>Produtos de maior risco histórico (Telefonia Fixa, Internet Mensal Pré, Móvel) exigem scores mais altos, especialmente em cidades RESTRITO.</div>
-    <div class="prod-table-wrap">
-      <table class="prod-table">
-        <thead><tr>
-          <th>Produto</th><th>Tier Cidade</th><th>Risco Produto</th>
-          <th style="color:var(--red)">Score Mínimo</th>
-          <th style="color:var(--yel)">Zona Cinza</th>
-          <th style="color:var(--grn)">Aprovado ≥</th>
-          <th>Bloqueio Adicional</th>
-        </tr></thead>
-        <tbody id="prod-body"></tbody>
-      </table>
+    <div class="sec">Matriz de Produtos × Tier</div>
+    <div class="tbl-wrap"><table class="tbl" id="prodTable">
+      <thead><tr>
+        <th>Produto</th><th>Tier</th><th>Risco</th>
+        <th style="color:var(--red)">Score Mín.</th>
+        <th style="color:var(--yel)">Zona Cinza</th>
+        <th style="color:var(--grn)">Aprovado ≥</th>
+        <th>Bloqueio Adicional</th>
+      </tr></thead>
+      <tbody id="prodBody"><tr class="prod-sec"><td colspan="7">TELEFONIA FIXA</td></tr><tr>
+      <td>Telefonia Fixa</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td><span class="res-badge pill-red">CRÍTICO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 500</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">500–549</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 550</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin OU Protesto</td>
+    </tr><tr>
+      <td>Telefonia Fixa</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td><span class="res-badge pill-red">CRÍTICO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 480</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">480–519</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 520</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin OU Protesto</td>
+    </tr><tr>
+      <td>Telefonia Fixa</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td><span class="res-badge pill-red">CRÍTICO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin OU Protesto</td>
+    </tr><tr class="prod-sec"><td colspan="7">TELEFONIA MÓVEL</td></tr><tr>
+      <td>Telefonia Móvel</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td><span class="res-badge pill-org">ALTO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 480</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">480–519</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 520</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin + Protesto</td>
+    </tr><tr>
+      <td>Telefonia Móvel</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td><span class="res-badge pill-org">ALTO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 455</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">455–484</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 485</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin + Protesto</td>
+    </tr><tr>
+      <td>Telefonia Móvel</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td><span class="res-badge pill-org">ALTO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–454</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 455</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr><tr class="prod-sec"><td colspan="7">TV</td></tr><tr>
+      <td>TV</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td><span class="res-badge pill-org">ALTO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–489</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 490</td>
+      <td style="font-size:11px;color:var(--org);font-weight:600">Pefin + Protesto</td>
+    </tr><tr>
+      <td>TV</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td><span class="res-badge pill-org">ALTO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 435</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">435–459</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr><tr>
+      <td>TV</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td><span class="res-badge pill-yel">MÉDIO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 410</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">410–434</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 435</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr><tr class="prod-sec"><td colspan="7">INTERNET (TODOS OS PLANOS)</td></tr><tr>
+      <td>Internet (todos os planos)</td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td><span class="res-badge pill-yel">MÉDIO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 450</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">450–479</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 480</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr><tr>
+      <td>Internet (todos os planos)</td>
+      <td><span class="res-badge pill-yel">MODERADO</span></td>
+      <td><span class="res-badge pill-yel">MÉDIO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 425</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">425–449</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 450</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr><tr>
+      <td>Internet (todos os planos)</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td><span class="res-badge pill-yel">MÉDIO</span></td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+      <td style="font-size:11px;color:var(--muted);font-weight:400">Padrão</td>
+    </tr></tbody>
+    </table></div>
+  </div>
+
+  <!-- ── HISTÓRICO ── -->
+  <div id="tab-historico" class="tab-panel">
+    <div class="sec">Histórico de Importações</div>
+    <div class="alert alert-blu" style="margin-bottom:16px">
+      Registra cada atualização mensal com os principais indicadores, permitindo acompanhar a evolução das taxas de inadimplência por cidade ao longo do tempo.
+    </div>
+    <div id="historicoList">
+    <div class="history-item">
+      <div>
+        <div class="hi-date">junho de 2026 · Importado em 18/06/2026, 08:28:55</div>
+        <div class="hi-info" style="margin-top:4px">
+          19.187 contratos · 984 consultas Serasa · 20 cidades ativas
+          <span class="hi-tag" style="background:var(--grn-l);color:var(--grn)">✓ Ativo</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">
+          Taxa média: 9.5%
+           · Maior risco: Palmares Paulista 22.5%
+           · Menor: Cajobi 3.8%
+        </div>
+      </div>
+    </div>
+      <div class="history-item">
+        <div>
+          <div class="hi-date">Abril 2026 · Base inicial</div>
+          <div class="hi-info" style="margin-top:4px">
+            19.187 contratos · 984 consultas Serasa · 20 cidades ativas
+            <span class="hi-tag" style="background:var(--grn-l);color:var(--grn)">✓ Ativo</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Maior risco: Palmares Paulista 24,2% · Menor: Cajobi 4,1%</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- ── FLUXO ── -->
-  <div id="tab-fluxo" class="tab-panel">
-    <div class="sec">Fluxo de Decisão para o Vendedor</div>
-    <div class="fluxo">
-      <div class="fluxo-step">
-        <div class="fluxo-num">1</div>
-        <div class="fluxo-title">Consultar CPF</div>
-        <div class="fluxo-desc">Consulta obrigatória no Serasa para TODOS os novos clientes, independente do produto.</div>
-      </div>
-      <div class="fluxo-step">
-        <div class="fluxo-num">2</div>
-        <div class="fluxo-title">Identificar Cidade</div>
-        <div class="fluxo-desc">Verificar o Tier da cidade do cliente: RESTRITO, MODERADO ou PADRÃO.</div>
-      </div>
-      <div class="fluxo-step">
-        <div class="fluxo-num">3</div>
-        <div class="fluxo-title">Verificar Produto</div>
-        <div class="fluxo-desc">Cada produto tem threshold específico por tier. Consultar a Matriz de Produtos.</div>
-      </div>
-      <div class="fluxo-step">
-        <div class="fluxo-num">4</div>
-        <div class="fluxo-title">Checar Bloqueios</div>
-        <div class="fluxo-desc">Pefin + Protesto simultâneos = bloqueio absoluto, independente do score.</div>
-      </div>
-      <div class="fluxo-step">
-        <div class="fluxo-num">5</div>
-        <div class="fluxo-title">Aplicar Decisão</div>
-        <div class="fluxo-desc">Aprovado direto · Zona Cinza → gestor (24h) · Negado → encerrar atendimento.</div>
-      </div>
-    </div>
-
-    <div class="sec">Legenda das Decisões</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px">
-      <div style="background:var(--grn-l);border:1px solid rgba(46,204,113,0.3);border-left:3px solid var(--grn);border-radius:8px;padding:16px">
-        <div style="font-size:15px;font-weight:700;color:var(--grn);margin-bottom:6px">✅ APROVADO</div>
-        <div style="font-size:12px;color:var(--muted)">Score ≥ threshold da cidade + produto. Prosseguir com a venda normalmente. Registrar consulta no sistema.</div>
-      </div>
-      <div style="background:var(--yel-l);border:1px solid rgba(245,166,35,0.3);border-left:3px solid var(--yel);border-radius:8px;padding:16px">
-        <div style="font-size:15px;font-weight:700;color:var(--yel);margin-bottom:6px">🟡 ZONA CINZA</div>
-        <div style="font-size:12px;color:var(--muted)">Score entre o mínimo e o ideal. Encaminhar para aprovação manual do gestor comercial. Prazo: até 24h.</div>
-      </div>
-      <div style="background:var(--red-l);border:1px solid rgba(232,76,61,0.3);border-left:3px solid var(--red);border-radius:8px;padding:16px">
-        <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:6px">❌ NEGADO</div>
-        <div style="font-size:12px;color:var(--muted)">Score abaixo do mínimo absoluto para aquela cidade/produto. Não prosseguir. Registrar tentativa no sistema.</div>
-      </div>
-      <div style="background:var(--org-l);border:1px solid rgba(230,126,34,0.3);border-left:3px solid var(--org);border-radius:8px;padding:16px">
-        <div style="font-size:15px;font-weight:700;color:var(--org);margin-bottom:6px">🔒 BLOQUEIO ABSOLUTO</div>
-        <div style="font-size:12px;color:var(--muted)">Cliente com Pefin ATIVO + Protesto em cartório simultaneamente. Negado independentemente do score Serasa.</div>
-      </div>
-    </div>
-
-    <div class="sec">Calibração — Base Histórica</div>
-    <div style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:20px;font-size:12px;color:var(--muted);line-height:1.9">
-      As regras foram calibradas com base em <strong style="color:var(--text)">984 contratos cancelados por inadimplência</strong> consultados no Serasa em Abril/2026.<br>
-      Score Serasa médio dos cancelados: <strong style="color:var(--red)">418 (RESTRITO) · 446 (MODERADO) · 475 (PADRÃO)</strong><br>
-      Os thresholds foram definidos <strong style="color:var(--text)">acima da média histórica</strong> de cada tier para criar margem de segurança na entrada.<br>
-      A regra base da empresa (400/400) é mantida como piso mínimo. Para cidades e produtos críticos, o threshold é elevado.
-    </div>
-  </div>
 </div>
 
 <footer>
-  <div>TURBONET TELECOM · Crivo de Crédito · Calibrado Serasa Abr/2026</div>
-  <div>Uso interno — Equipe Comercial · Aprovações Zona Cinza: Gestor Comercial</div>
+  <div>TURBONET TELECOM · Crivo de Crédito v2 · Metodologia: Taxa Real por Cidade</div>
+  <div id="footerMeta">Base: junho de 2026 · 19.187 contratos · Uso interno</div>
 </footer>
 
 <script>
-// ── DATA ────────────────────────────────────────────────────
-const TIER_MAP = {
-  'Pirangi':'RESTRITO','Bebedouro':'RESTRITO','Olímpia':'RESTRITO',
-  'Barretos':'RESTRITO','Severínia':'RESTRITO','Paraíso':'RESTRITO',
-  'Vista Alegre Do Alto':'MODERADO','Colômbia':'MODERADO',
-  'Monte Azul Paulista':'MODERADO','Guaraci':'MODERADO','Outras cidades':'MODERADO',
-  'Cajobi':'PADRÃO','Jaborandi':'PADRÃO','Catigua':'PADRÃO',
-  'Tabapuã':'PADRÃO','Catanduva':'PADRÃO','Potirendaba':'PADRÃO'
-};
-
-// ── DELTA DEFINITIONS (offsets from BASE score) ────────────
+// ══════════════════════════════════════════════════════════════
+// CONSTANTS & STATE
+// ══════════════════════════════════════════════════════════════
 const BASE_ORIGINAL = 400;
 let BASE = 400;
+let files = { fv: null, se: null };
 
-const CIDADES_DEF = [
-  {cidade:'Pirangi',             tier:'RESTRITO', cancels:18,  pct_crit:27.8, ss_hist:437, dmin:50, daprov:100, obs:'Maior % de críticos da base'},
-  {cidade:'Bebedouro',           tier:'RESTRITO', cancels:142, pct_crit:18.3, ss_hist:417, dmin:40, daprov:80,  obs:'Alta concentração de críticos'},
-  {cidade:'Olímpia',             tier:'RESTRITO', cancels:140, pct_crit:17.9, ss_hist:418, dmin:40, daprov:80,  obs:'Perfil similar a Bebedouro'},
-  {cidade:'Barretos',            tier:'RESTRITO', cancels:261, pct_crit:14.2, ss_hist:419, dmin:40, daprov:80,  obs:'Maior volume da base'},
-  {cidade:'Severínia',           tier:'RESTRITO', cancels:60,  pct_crit:15.0, ss_hist:414, dmin:40, daprov:80,  obs:'Score Serasa mais baixo da base'},
-  {cidade:'Paraíso',             tier:'RESTRITO', cancels:18,  pct_crit:11.1, ss_hist:456, dmin:30, daprov:70,  obs:'Risco médio elevado'},
-  {cidade:'Vista Alegre Do Alto',tier:'MODERADO', cancels:24,  pct_crit:8.3,  ss_hist:416, dmin:20, daprov:50,  obs:'Risco médio'},
-  {cidade:'Colômbia',            tier:'MODERADO', cancels:35,  pct_crit:8.6,  ss_hist:409, dmin:20, daprov:50,  obs:'Score Serasa baixo'},
-  {cidade:'Monte Azul Paulista', tier:'MODERADO', cancels:66,  pct_crit:6.1,  ss_hist:462, dmin:10, daprov:40,  obs:'Perfil intermediário'},
-  {cidade:'Guaraci',             tier:'MODERADO', cancels:47,  pct_crit:8.5,  ss_hist:458, dmin:15, daprov:45,  obs:'Perfil intermediário'},
-  {cidade:'Outras cidades',      tier:'MODERADO', cancels:53,  pct_crit:10.0, ss_hist:450, dmin:15, daprov:45,  obs:'Sem histórico suficiente: cautela'},
-  {cidade:'Cajobi',              tier:'PADRÃO',   cancels:43,  pct_crit:7.0,  ss_hist:470, dmin:0,  daprov:25,  obs:'Cidade sede. Regra base mantida'},
-  {cidade:'Jaborandi',           tier:'PADRÃO',   cancels:15,  pct_crit:6.7,  ss_hist:461, dmin:0,  daprov:25,  obs:'Perfil aceitável'},
-  {cidade:'Catigua',             tier:'PADRÃO',   cancels:14,  pct_crit:7.1,  ss_hist:475, dmin:0,  daprov:25,  obs:'Score histórico bom'},
-  {cidade:'Tabapuã',             tier:'PADRÃO',   cancels:26,  pct_crit:3.8,  ss_hist:478, dmin:0,  daprov:25,  obs:'Menor % críticos'},
-  {cidade:'Catanduva',           tier:'PADRÃO',   cancels:12,  pct_crit:0.0,  ss_hist:492, dmin:0,  daprov:25,  obs:'Nenhum crítico histórico'},
-  {cidade:'Potirendaba',         tier:'PADRÃO',   cancels:10,  pct_crit:0.0,  ss_hist:501, dmin:0,  daprov:25,  obs:'Melhor score da base'},
+const INADIM_MOTIVOS = [
+  'CAN - Inadimplência - Geral','CAN - Inadimplência - FPD',
+  'CAN - Inadimplência - Vencido Após 60 Dias','CAN - Inadimplência - Vencido Após 30 Dias',
+  'CAN - Inadimplência - Religamento','CAN - Inadimplência - Sem Consumo',
+  'CAN - Inadimplência - Retirada de Equipamentos',
+  'CAN - Inadimplência - Equipamentos Pendentes','CAN - Inadimplência - Parou de Utilizar'
 ];
 
+// Product risk config (fixed offsets)
 const PRODUTOS_DEF = [
-  {prod:'Telefonia Fixa',            tier:'RESTRITO', risco:'CRÍTICO', dmin:100, daprov:150, bloq:'Pefin OU Protesto'},
-  {prod:'Telefonia Fixa',            tier:'MODERADO', risco:'CRÍTICO', dmin:80,  daprov:120, bloq:'Pefin OU Protesto'},
-  {prod:'Telefonia Fixa',            tier:'PADRÃO',   risco:'CRÍTICO', dmin:60,  daprov:100, bloq:'Pefin OU Protesto'},
-  {prod:'Telefonia Móvel',           tier:'RESTRITO', risco:'ALTO',    dmin:80,  daprov:120, bloq:'Pefin + Protesto'},
-  {prod:'Telefonia Móvel',           tier:'MODERADO', risco:'ALTO',    dmin:55,  daprov:85,  bloq:'Pefin + Protesto'},
-  {prod:'Telefonia Móvel',           tier:'PADRÃO',   risco:'ALTO',    dmin:30,  daprov:55,  bloq:'Padrão'},
-  {prod:'TV',                        tier:'RESTRITO', risco:'ALTO',    dmin:60,  daprov:90,  bloq:'Pefin + Protesto'},
-  {prod:'TV',                        tier:'MODERADO', risco:'ALTO',    dmin:35,  daprov:60,  bloq:'Padrão'},
-  {prod:'TV',                        tier:'PADRÃO',   risco:'MÉDIO',   dmin:10,  daprov:35,  bloq:'Padrão'},
-  {prod:'Internet (todos os planos)',tier:'RESTRITO', risco:'MÉDIO',   dmin:50,  daprov:80,  bloq:'Padrão'},
-  {prod:'Internet (todos os planos)',tier:'MODERADO', risco:'MÉDIO',   dmin:25,  daprov:50,  bloq:'Padrão'},
-  {prod:'Internet (todos os planos)',tier:'PADRÃO',   risco:'MÉDIO',   dmin:0,   daprov:25,  bloq:'Padrão'},
+  {prod:'Telefonia Fixa',            tier:'RESTRITO',risco:'CRÍTICO',dmin:100,daprov:150,bloq:'Pefin OU Protesto'},
+  {prod:'Telefonia Fixa',            tier:'MODERADO',risco:'CRÍTICO',dmin:80, daprov:120,bloq:'Pefin OU Protesto'},
+  {prod:'Telefonia Fixa',            tier:'PADRÃO',  risco:'CRÍTICO',dmin:60, daprov:100,bloq:'Pefin OU Protesto'},
+  {prod:'Telefonia Móvel',           tier:'RESTRITO',risco:'ALTO',   dmin:80, daprov:120,bloq:'Pefin + Protesto'},
+  {prod:'Telefonia Móvel',           tier:'MODERADO',risco:'ALTO',   dmin:55, daprov:85, bloq:'Pefin + Protesto'},
+  {prod:'Telefonia Móvel',           tier:'PADRÃO',  risco:'ALTO',   dmin:30, daprov:55, bloq:'Padrão'},
+  {prod:'TV',                        tier:'RESTRITO',risco:'ALTO',   dmin:60, daprov:90, bloq:'Pefin + Protesto'},
+  {prod:'TV',                        tier:'MODERADO',risco:'ALTO',   dmin:35, daprov:60, bloq:'Padrão'},
+  {prod:'TV',                        tier:'PADRÃO',  risco:'MÉDIO',  dmin:10, daprov:35, bloq:'Padrão'},
+  {prod:'Internet (todos os planos)',tier:'RESTRITO',risco:'MÉDIO',  dmin:50, daprov:80, bloq:'Padrão'},
+  {prod:'Internet (todos os planos)',tier:'MODERADO',risco:'MÉDIO',  dmin:25, daprov:50, bloq:'Padrão'},
+  {prod:'Internet (todos os planos)',tier:'PADRÃO',  risco:'MÉDIO',  dmin:0,  daprov:25, bloq:'Padrão'},
 ];
 
-// Compute live thresholds from BASE + delta
+
+// City × Product breakdown data (from Força de Vendas analysis)
+const CIDADE_PRODUTO = {
+  'Altair':              {'Internet':{total:166,inadim:18,taxa:10.8},'TV':{total:38,inadim:1,taxa:2.6}},
+  'Barretos':            {'Internet':{total:3043,inadim:442,taxa:14.5},'TV':{total:462,inadim:52,taxa:11.3},'Telefonia Móvel':{total:725,inadim:11,taxa:1.5},'Telefonia Fixa':{total:43,inadim:5,taxa:11.6}},
+  'Bebedouro':           {'Internet':{total:1992,inadim:215,taxa:10.8},'TV':{total:330,inadim:34,taxa:10.3},'Telefonia Móvel':{total:420,inadim:1,taxa:0.2},'Telefonia Fixa':{total:40,inadim:0,taxa:0.0}},
+  'Cajobi':              {'Internet':{total:606,inadim:32,taxa:5.3},'TV':{total:206,inadim:8,taxa:3.9},'Telefonia Móvel':{total:194,inadim:2,taxa:1.0},'Telefonia Fixa':{total:12,inadim:0,taxa:0.0}},
+  'Colômbia':            {'Internet':{total:453,inadim:67,taxa:14.8},'TV':{total:99,inadim:14,taxa:14.1},'Telefonia Móvel':{total:61,inadim:0,taxa:0.0},'Telefonia Fixa':{total:11,inadim:0,taxa:0.0}},
+  'Embaúba':             {'Internet':{total:104,inadim:6,taxa:5.8},'TV':{total:24,inadim:1,taxa:4.2},'Telefonia Móvel':{total:25,inadim:0,taxa:0.0}},
+  'Guaraci':             {'Internet':{total:638,inadim:61,taxa:9.6},'TV':{total:135,inadim:10,taxa:7.4},'Telefonia Móvel':{total:59,inadim:1,taxa:1.7}},
+  'Monte Azul Paulista': {'Internet':{total:633,inadim:57,taxa:9.0},'TV':{total:129,inadim:9,taxa:7.0},'Telefonia Móvel':{total:95,inadim:1,taxa:1.1},'Telefonia Fixa':{total:21,inadim:0,taxa:0.0}},
+  'Novais':              {'Internet':{total:234,inadim:27,taxa:11.5},'TV':{total:48,inadim:3,taxa:6.2},'Telefonia Móvel':{total:36,inadim:2,taxa:5.6}},
+  'Olímpia':             {'Internet':{total:2283,inadim:190,taxa:8.3},'TV':{total:318,inadim:20,taxa:6.3},'Telefonia Móvel':{total:467,inadim:1,taxa:0.2},'Telefonia Fixa':{total:77,inadim:0,taxa:0.0}},
+  'Onda Verde':          {'Internet':{total:122,inadim:23,taxa:18.9},'TV':{total:19,inadim:1,taxa:5.3},'Telefonia Móvel':{total:11,inadim:0,taxa:0.0}},
+  'Palmares Paulista':   {'Internet':{total:110,inadim:33,taxa:30.0},'TV':{total:28,inadim:5,taxa:17.9},'Telefonia Móvel':{total:18,inadim:0,taxa:0.0}},
+  'Paraíso':             {'Internet':{total:162,inadim:35,taxa:21.6},'TV':{total:63,inadim:6,taxa:9.5},'Telefonia Móvel':{total:52,inadim:0,taxa:0.0}},
+  'Pirangi':             {'Internet':{total:285,inadim:35,taxa:12.3},'TV':{total:43,inadim:4,taxa:9.3},'Telefonia Móvel':{total:43,inadim:0,taxa:0.0}},
+  'Severínia':           {'Internet':{total:763,inadim:85,taxa:11.1},'TV':{total:188,inadim:20,taxa:10.6},'Telefonia Móvel':{total:172,inadim:0,taxa:0.0}},
+  'Tabapuã':             {'Internet':{total:466,inadim:51,taxa:10.9},'TV':{total:104,inadim:11,taxa:10.6},'Telefonia Móvel':{total:67,inadim:0,taxa:0.0},'Telefonia Fixa':{total:11,inadim:1,taxa:9.1}},
+  'Taiaçu':              {'Internet':{total:162,inadim:26,taxa:16.0},'TV':{total:31,inadim:1,taxa:3.2},'Telefonia Móvel':{total:29,inadim:2,taxa:6.9}},
+  'Taiúva':              {'Internet':{total:132,inadim:17,taxa:12.9},'TV':{total:39,inadim:3,taxa:7.7},'Telefonia Móvel':{total:28,inadim:0,taxa:0.0}},
+  'Taquaral':            {'Internet':{total:86,inadim:7,taxa:8.1},'TV':{total:20,inadim:0,taxa:0.0},'Telefonia Móvel':{total:26,inadim:0,taxa:0.0}},
+  'Vista Alegre Do Alto':{'Internet':{total:249,inadim:22,taxa:8.8},'TV':{total:34,inadim:3,taxa:8.8},'Telefonia Móvel':{total:74,inadim:0,taxa:0.0}},
+};
+let activeProdFilter = 'Todos';
+
+// ── DEFAULT CITY DATA (base Abr/2026) ─────────────────────────
+let CIDADES = [
+  {
+    "cidade": "Palmares Paulista",
+    "tier": "RESTRITO",
+    "total": 169,
+    "inadim": 38,
+    "taxa": 22.5,
+    "dmin": 60,
+    "daprov": 100
+  },
+  {
+    "cidade": "Onda Verde",
+    "tier": "RESTRITO",
+    "total": 165,
+    "inadim": 24,
+    "taxa": 14.5,
+    "dmin": 60,
+    "daprov": 100
+  },
+  {
+    "cidade": "Paraíso",
+    "tier": "RESTRITO",
+    "total": 296,
+    "inadim": 41,
+    "taxa": 13.9,
+    "dmin": 60,
+    "daprov": 100
+  },
+  {
+    "cidade": "Colômbia",
+    "tier": "MODERADO",
+    "total": 683,
+    "inadim": 81,
+    "taxa": 11.9,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Taiaçu",
+    "tier": "MODERADO",
+    "total": 243,
+    "inadim": 29,
+    "taxa": 11.9,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Barretos",
+    "tier": "MODERADO",
+    "total": 4444,
+    "inadim": 510,
+    "taxa": 11.5,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Pirangi",
+    "tier": "MODERADO",
+    "total": 415,
+    "inadim": 39,
+    "taxa": 9.4,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Taiúva",
+    "tier": "MODERADO",
+    "total": 215,
+    "inadim": 20,
+    "taxa": 9.3,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Novais",
+    "tier": "MODERADO",
+    "total": 351,
+    "inadim": 32,
+    "taxa": 9.1,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Tabapuã",
+    "tier": "MODERADO",
+    "total": 701,
+    "inadim": 63,
+    "taxa": 9,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Severínia",
+    "tier": "MODERADO",
+    "total": 1193,
+    "inadim": 105,
+    "taxa": 8.8,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Bebedouro",
+    "tier": "MODERADO",
+    "total": 2905,
+    "inadim": 250,
+    "taxa": 8.6,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Altair",
+    "tier": "MODERADO",
+    "total": 235,
+    "inadim": 19,
+    "taxa": 8.1,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Guaraci",
+    "tier": "MODERADO",
+    "total": 927,
+    "inadim": 72,
+    "taxa": 7.8,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Monte Azul Paulista",
+    "tier": "MODERADO",
+    "total": 964,
+    "inadim": 67,
+    "taxa": 7,
+    "dmin": 30,
+    "daprov": 60
+  },
+  {
+    "cidade": "Vista Alegre Do Alto",
+    "tier": "PADRÃO",
+    "total": 381,
+    "inadim": 25,
+    "taxa": 6.6,
+    "dmin": 0,
+    "daprov": 25
+  },
+  {
+    "cidade": "Olímpia",
+    "tier": "PADRÃO",
+    "total": 3403,
+    "inadim": 211,
+    "taxa": 6.2,
+    "dmin": 0,
+    "daprov": 25
+  },
+  {
+    "cidade": "Taquaral",
+    "tier": "PADRÃO",
+    "total": 136,
+    "inadim": 7,
+    "taxa": 5.1,
+    "dmin": 0,
+    "daprov": 25
+  },
+  {
+    "cidade": "Embaúba",
+    "tier": "PADRÃO",
+    "total": 166,
+    "inadim": 7,
+    "taxa": 4.2,
+    "dmin": 0,
+    "daprov": 25
+  },
+  {
+    "cidade": "Cajobi",
+    "tier": "PADRÃO",
+    "total": 1115,
+    "inadim": 42,
+    "taxa": 3.8,
+    "dmin": 0,
+    "daprov": 25
+  }
+];
+
+let TIER_MAP = {};
+CIDADES.forEach(c => TIER_MAP[c.cidade] = c.tier);
+
+// ══════════════════════════════════════════════════════════════
+// COMPUTED
+// ══════════════════════════════════════════════════════════════
 function getCidades() {
-  return CIDADES_DEF.map(c => ({
-    ...c,
-    s_min:   BASE + c.dmin,
-    s_aprov: BASE + c.daprov,
-    cinza:   `${BASE + c.dmin}–${BASE + c.daprov - 1}`
+  return CIDADES.map(c => ({
+    ...c, s_min: BASE+c.dmin, s_aprov: BASE+c.daprov,
+    cinza: `${BASE+c.dmin}–${BASE+c.daprov-1}`
   }));
 }
-
 function getProdutos() {
   return PRODUTOS_DEF.map(p => ({
-    ...p,
-    s_min:   BASE + p.dmin,
-    s_aprov: BASE + p.daprov,
-    cinza:   `${BASE + p.dmin}–${BASE + p.daprov - 1}`
+    ...p, s_min: BASE+p.dmin, s_aprov: BASE+p.daprov,
+    cinza: `${BASE+p.dmin}–${BASE+p.daprov-1}`
   }));
 }
 
-// Aliases for backward compatibility
-function getCIDADES() { return getCidades(); }
-function getPRODUTOS() { return getProdutos(); }
+// ══════════════════════════════════════════════════════════════
+// FILE IMPORT
+// ══════════════════════════════════════════════════════════════
+function toggleImport() {
+  const p = document.getElementById('importPanel');
+  p.classList.toggle('open');
+}
+function dragOver(e, key) { e.preventDefault(); document.getElementById('zone-'+key).classList.add('drag'); }
+function dragLeave(key) { document.getElementById('zone-'+key).classList.remove('drag'); }
+function dropFile(e, key) { e.preventDefault(); dragLeave(key); handleFile(e.dataTransfer.files[0], key); }
+function loadFile(e, key) { handleFile(e.target.files[0], key); }
 
-// ── TOGGLES ─────────────────────────────────────────────────
-const state = { pefin: null, protesto: null };
-function setToggle(field, val) {
-  state[field] = val;
-  const sim = document.getElementById(`${field}-sim`);
-  const nao = document.getElementById(`${field}-nao`);
-  sim.className = 'toggle-btn' + (val==='SIM' ? ' active-sim' : '');
-  nao.className = 'toggle-btn' + (val==='NÃO' ? ' active-nao' : '');
+function handleFile(file, key) {
+  if (!file) return;
+  const zone = document.getElementById('zone-'+key);
+  const status = document.getElementById('status-'+key);
+  const icon = document.getElementById('icon-'+key);
+  zone.classList.remove('done','error','drag');
+  status.textContent = 'Lendo arquivo...';
+  status.style.color = 'var(--muted)';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {defval:null});
+      
+      // Validate columns
+      const required = key==='fv'
+        ? ['Cidade','ID Contrato','Motivo Cancelamento']
+        : ['Cidade','SCORE'];
+      const cols = data.length > 0 ? Object.keys(data[0]) : [];
+      const missing = required.filter(r => !cols.some(c => c.trim()===r));
+      
+      if (missing.length > 0) {
+        zone.classList.add('error');
+        icon.textContent = '❌';
+        status.textContent = `Colunas ausentes: ${missing.join(', ')}`;
+        status.style.color = 'var(--red)';
+        return;
+      }
+      
+      files[key] = data;
+      zone.classList.add('done');
+      icon.textContent = '✅';
+      status.textContent = `${data.length.toLocaleString('pt-BR')} registros · ${file.name}`;
+      status.style.color = 'var(--grn)';
+      
+      // Enable button if both loaded
+      const canProcess = files.fv && files.se;
+      document.getElementById('btnProcess').disabled = !canProcess;
+      if (!canProcess) {
+        document.getElementById('btnProcess').disabled = false; // allow single file
+      }
+    } catch(err) {
+      zone.classList.add('error');
+      icon.textContent = '❌';
+      status.textContent = 'Erro ao ler arquivo: '+err.message;
+      status.style.color = 'var(--red)';
+    }
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-// ── ANALISAR ────────────────────────────────────────────────
+function processFiles() {
+  const spinner = document.getElementById('procSpinner');
+  const label   = document.getElementById('btnProcessLabel');
+  const btn     = document.getElementById('btnProcess');
+  
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Processando...';
+
+  setTimeout(() => {
+    try {
+      let newCidades = CIDADES; // fallback
+      let totalContratos = 19187, totalSerasa = 984;
+
+      // ── Process Força de Vendas ────────────────────────────
+      if (files.fv) {
+        const fv = files.fv;
+        totalContratos = fv.length;
+
+        // Count by city
+        const cityTotals = {};
+        const cityInadim = {};
+
+        // Detect column names flexibly (trim whitespace from keys)
+        const fvKeys = fv.length > 0 ? Object.keys(fv[0]) : [];
+        const cidadeCol  = fvKeys.find(k => k.trim() === 'Cidade') || 'Cidade';
+        const motivoCol  = fvKeys.find(k => k.trim() === 'Motivo Cancelamento') || 'Motivo Cancelamento';
+        const contratCol = fvKeys.find(k => k.trim() === 'ID Contrato') || 'ID Contrato';
+
+        fv.forEach(row => {
+          const cidade = (row[cidadeCol]||'').trim();
+          if (!cidade) return;
+          cityTotals[cidade] = (cityTotals[cidade]||0) + 1;
+          const motivo = (row[motivoCol]||'').trim();
+          if (INADIM_MOTIVOS.some(m => motivo === m)) {
+            cityInadim[cidade] = (cityInadim[cidade]||0) + 1;
+          }
+        });
+
+        // Build city array (min 50 contracts)
+        newCidades = Object.entries(cityTotals)
+          .filter(([,t]) => t >= 50)
+          .map(([cidade, total]) => {
+            const inadim = cityInadim[cidade] || 0;
+            const taxa   = parseFloat((inadim/total*100).toFixed(1));
+            let tier, dmin, daprov;
+            if (taxa >= 12)     { tier='RESTRITO'; dmin=60; daprov=100; }
+            else if (taxa >= 7) { tier='MODERADO'; dmin=30; daprov=60;  }
+            else                { tier='PADRÃO';   dmin=0;  daprov=25;  }
+            return {cidade, tier, total, inadim, taxa, dmin, daprov};
+          })
+          .sort((a,b) => b.taxa - a.taxa);
+      }
+
+      // ── Process Serasa (optional — enriches city Serasa scores) ──
+      if (files.se) {
+        totalSerasa = files.se.length;
+        // Could enrich city data with average Serasa score here in future
+      }
+
+      // ── Rebuild city × product breakdown ─────────────────
+      if (files.fv) {
+        const fv = files.fv;
+        const prodGroups = {Internet:[], TV:['TV'], 'Telefonia Móvel':[], 'Telefonia Fixa':[]};
+        const mapProd = tipo => {
+          const t = String(tipo||'').toLowerCase();
+          if (t.includes('móvel')||t.includes('movel')) return 'Telefonia Móvel';
+          if (t.includes('fixa')) return 'Telefonia Fixa';
+          if (t.includes('tv')) return 'TV';
+          if (t.includes('internet')||t.includes('digital')||t.includes('carne')||t.includes('carnê')||t.includes('mensal')) return 'Internet';
+          return null;
+        };
+        // Reset
+        Object.keys(CIDADE_PRODUTO).forEach(k => delete CIDADE_PRODUTO[k]);
+        const tmp = {};
+        const rebuildKeys    = fv.length > 0 ? Object.keys(fv[0]) : [];
+        const tipoProdCol    = rebuildKeys.find(k => k.trim() === 'Tipo Contrato') || 'Tipo Contrato';
+        const rebuildCidadeCol = rebuildKeys.find(k => k.trim() === 'Cidade') || 'Cidade';
+        const rebuildMotivoCol = rebuildKeys.find(k => k.trim() === 'Motivo Cancelamento') || 'Motivo Cancelamento';
+        fv.forEach(row => {
+          const cidade = (row[rebuildCidadeCol]||'').trim();
+          const prod   = mapProd(row[tipoProdCol]);
+          if (!cidade || !prod) return;
+          if (!tmp[cidade]) tmp[cidade] = {};
+          if (!tmp[cidade][prod]) tmp[cidade][prod] = {total:0, inadim:0};
+          tmp[cidade][prod].total++;
+          const motivo = (row[rebuildMotivoCol]||'').trim();
+          if (INADIM_MOTIVOS.some(m => motivo === m)) tmp[cidade][prod].inadim++;
+        });
+        Object.entries(tmp).forEach(([cidade, prods]) => {
+          CIDADE_PRODUTO[cidade] = {};
+          Object.entries(prods).forEach(([prod, {total, inadim}]) => {
+            if (total >= 10) {
+              CIDADE_PRODUTO[cidade][prod] = parseFloat((inadim/total*100).toFixed(1));
+            }
+          });
+        });
+      }
+
+      // ── Update state ──────────────────────────────────────
+      CIDADES = newCidades;
+      TIER_MAP = {};
+      CIDADES.forEach(c => TIER_MAP[c.cidade] = c.tier);
+
+      const avgTaxa = CIDADES.length > 0
+        ? (CIDADES.reduce((s,c)=>s+c.taxa,0)/CIDADES.length).toFixed(1)
+        : '—';
+
+      // Update status bar
+      document.getElementById('skTotal').textContent   = totalContratos.toLocaleString('pt-BR');
+      document.getElementById('skSerasa').textContent  = totalSerasa.toLocaleString('pt-BR');
+      document.getElementById('skCidades').textContent = CIDADES.length;
+      document.getElementById('skTaxa').textContent    = avgTaxa+'%';
+
+      const now = new Date();
+      const mes = now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+      document.getElementById('statusText').textContent = `Dados atualizados · ${mes}`;
+      document.getElementById('dataBadge').textContent  = `Dados ativos · ${mes}`;
+      document.getElementById('dataBadge').className    = 'logo-badge badge-live';
+      document.getElementById('headerMeta').innerHTML   = `${totalContratos.toLocaleString('pt-BR')} contratos · ${totalSerasa} Serasa<br>Atualizado: ${mes}`;
+      document.getElementById('footerMeta').textContent = `Base: ${mes} · ${totalContratos.toLocaleString('pt-BR')} contratos · Uso interno`;
+
+      // Rebuild city select
+      buildCitySelect();
+      renderCityTable();
+      renderProdTable();
+
+      // Add to history
+      addHistory(mes, totalContratos, totalSerasa, CIDADES.length, avgTaxa, newCidades);
+
+      // Close panel
+      document.getElementById('importPanel').classList.remove('open');
+      label.textContent = '✓ Base atualizada!';
+
+      // Show save button
+      const saveBtn = document.getElementById('btnSaveHtml');
+      saveBtn.style.display = 'flex';
+      saveBtn.disabled = false;
+
+      // Also add a banner at top of page
+      const existing = document.getElementById('saveBanner');
+      if (existing) existing.remove();
+      const banner = document.createElement('div');
+      banner.id = 'saveBanner';
+      banner.style.cssText = 'background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);border-radius:10px;padding:13px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;font-size:12px;';
+      banner.innerHTML = `
+        <span style="font-size:20px">✅</span>
+        <div style="flex:1">
+          <strong style="color:var(--grn)">Base atualizada com sucesso!</strong>
+          <span style="color:var(--muted);margin-left:10px">${new Date().toLocaleString('pt-BR')}</span><br>
+          <span style="color:var(--muted)">Clique em <strong style="color:var(--grn)">💾 Salvar HTML</strong> para gerar um arquivo com os dados desta importação permanentemente embutidos.</span>
+        </div>
+        <button onclick="saveHtml()" style="background:#1a4a2e;border:1px solid #2a7a46;border-radius:7px;padding:8px 16px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">💾 Salvar HTML</button>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>
+      `;
+      document.querySelector('.page').insertBefore(banner, document.querySelector('.page').firstChild);
+
+      setTimeout(()=>{ label.textContent='⚡ Recalcular Crivo'; btn.disabled=false; spinner.style.display='none'; }, 2000);
+
+    } catch(err) {
+      label.textContent = '❌ Erro: '+err.message;
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      setTimeout(()=>{ label.textContent='⚡ Recalcular Crivo'; },3000);
+    }
+  }, 200);
+}
+
+function addHistory(mes, total, serasa, cidades, avgTaxa, cidadeList) {
+  const maior = cidadeList.length > 0 ? cidadeList[0] : null;
+  const menor = cidadeList.length > 0 ? cidadeList[cidadeList.length-1] : null;
+  const html = `
+    <div class="history-item">
+      <div>
+        <div class="hi-date">${mes} · Importado em ${new Date().toLocaleString('pt-BR')}</div>
+        <div class="hi-info" style="margin-top:4px">
+          ${total.toLocaleString('pt-BR')} contratos · ${serasa} consultas Serasa · ${cidades} cidades ativas
+          <span class="hi-tag" style="background:var(--grn-l);color:var(--grn)">✓ Ativo</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">
+          Taxa média: ${avgTaxa}%
+          ${maior ? ` · Maior risco: ${maior.cidade} ${maior.taxa}%` : ''}
+          ${menor ? ` · Menor: ${menor.cidade} ${menor.taxa}%` : ''}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('historicoList').insertAdjacentHTML('afterbegin', html);
+}
+
+// ══════════════════════════════════════════════════════════════
+// CITY SELECT
+// ══════════════════════════════════════════════════════════════
+function buildCitySelect() {
+  const sel = document.getElementById('f-cidade');
+  const grupos = {RESTRITO:[], MODERADO:[], PADRÃO:[]};
+  CIDADES.forEach(c => { if (grupos[c.tier]) grupos[c.tier].push(c); });
+  
+  const labels = {
+    RESTRITO: '🔴 RESTRITO (taxa ≥ 12%)',
+    MODERADO: '🟡 MODERADO (taxa 7–12%)',
+    PADRÃO:   '🟢 PADRÃO (taxa < 7%)',
+  };
+  
+  sel.innerHTML = '<option value="">Selecionar cidade...</option>';
+  Object.entries(grupos).forEach(([tier, cities]) => {
+    if (!cities.length) return;
+    const grp = document.createElement('optgroup');
+    grp.label = labels[tier];
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.cidade;
+      opt.textContent = `${c.cidade} — ${c.taxa}%`;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+  
+  // Other cities fallback
+  const grpOther = document.createElement('optgroup');
+  grpOther.label = '⚪ Outras (usar tier Moderado)';
+  const opt = document.createElement('option');
+  opt.value = 'Outras cidades';
+  opt.textContent = 'Outras cidades';
+  grpOther.appendChild(opt);
+  sel.appendChild(grpOther);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SIMULATOR
+// ══════════════════════════════════════════════════════════════
+const toggleState = {pefin:null, protesto:null};
+function setToggle(field, val) {
+  toggleState[field] = val;
+  document.getElementById(`${field}-sim`).className = 'toggle-btn'+(val==='SIM'?' active-sim':'');
+  document.getElementById(`${field}-nao`).className = 'toggle-btn'+(val==='NÃO'?' active-nao':'');
+}
+
 function analisar() {
   const nome    = document.getElementById('f-nome').value.trim();
   const cidade  = document.getElementById('f-cidade').value;
   const produto = document.getElementById('f-produto').value;
   const score   = parseInt(document.getElementById('f-score').value);
-  const pefin   = state.pefin;
-  const protesto= state.protesto;
-
+  const pefin   = toggleState.pefin;
+  const protesto= toggleState.protesto;
   const res = document.getElementById('resultado');
-
-  if (!cidade || !produto || isNaN(score) || !pefin || !protesto) {
-    res.innerHTML = '<div style="color:var(--yel);text-align:center;font-size:13px">⚠ Preencha todos os campos antes de analisar.</div>';
-    res.className = 'card resultado empty';
-    return;
+  
+  if (!cidade||!produto||isNaN(score)||!pefin||!protesto) {
+    res.innerHTML='<div style="color:var(--yel);text-align:center;font-size:12px">⚠ Preencha todos os campos antes de analisar.</div>';
+    res.className='card resultado empty'; return;
   }
-
-  const tier = TIER_MAP[cidade] || 'MODERADO';
-  const rule = getProdutos().find(p => p.prod === produto && p.tier === tier);
-  if (!rule) { res.innerHTML = '<div style="color:var(--red)">Combinação não encontrada.</div>'; return; }
-
-  // Bloqueio absoluto
-  const bloqAbs = pefin === 'SIM' && protesto === 'SIM';
-  // Bloqueio produto-específico (Pefin OU Protesto para Tel. Fixa)
-  const bloqProd = rule.bloq === 'Pefin OU Protesto' && (pefin === 'SIM' || protesto === 'SIM');
-
-  let decisao, decColor, decBg, decIcon, decSub, acoes = [];
-
-  if (bloqAbs || bloqProd) {
-    decisao = 'BLOQUEIO ABSOLUTO'; decIcon = '🔒';
-    decColor = 'var(--org)'; decBg = 'var(--org-l)';
-    decSub = bloqProd && rule.bloq === 'Pefin OU Protesto'
-      ? 'Telefonia Fixa: qualquer anotação (Pefin ou Protesto) ativa bloqueio'
-      : 'Pefin ATIVO + Protesto em cartório simultaneamente';
-    acoes = ['Não prosseguir com a venda','Registrar tentativa no sistema','Informar o cliente sobre as restrições'];
-  } else if (score < rule.s_min) {
-    decisao = 'NEGADO'; decIcon = '❌';
-    decColor = 'var(--red)'; decBg = 'var(--red-l)';
-    decSub = `Score ${score} abaixo do mínimo de ${rule.s_min} para ${produto} em ${tier}`;
-    acoes = ['Não prosseguir com a venda','Registrar tentativa no sistema','Orientar o cliente a regularizar o CPF'];
-  } else if (score < rule.s_aprov) {
-    decisao = 'ZONA CINZA'; decIcon = '🟡';
-    decColor = 'var(--yel)'; decBg = 'var(--yel-l)';
-    decSub = `Score ${score} na faixa ${rule.cinza}. Requer análise do gestor`;
-    acoes = ['Encaminhar para aprovação manual do gestor','Prazo máximo: 24 horas','Registrar consulta no sistema com status PENDENTE'];
+  
+  const tier = TIER_MAP[cidade]||'MODERADO';
+  const rule = getProdutos().find(p=>p.prod===produto&&p.tier===tier);
+  if (!rule){res.innerHTML='<div style="color:var(--red)">Combinação não encontrada.</div>';return;}
+  
+  const cidadeData = getCidades().find(c=>c.cidade===cidade);
+  const bloqAbs  = pefin==='SIM'&&protesto==='SIM';
+  const bloqProd = rule.bloq==='Pefin OU Protesto'&&(pefin==='SIM'||protesto==='SIM');
+  
+  let decisao,decColor,decBg,decIcon,decSub,acoes=[];
+  if (bloqAbs||bloqProd) {
+    decisao='BLOQUEIO ABSOLUTO';decIcon='🔒';decColor='var(--org)';decBg='var(--org-l)';
+    decSub=bloqProd&&rule.bloq==='Pefin OU Protesto'?'Tel. Fixa: qualquer anotação ativa bloqueio':'Pefin ATIVO + Protesto simultâneos';
+    acoes=['Não prosseguir com a venda','Registrar no sistema','Informar o cliente sobre restrições'];
+  } else if (score<rule.s_min) {
+    decisao='NEGADO';decIcon='❌';decColor='var(--red)';decBg='var(--red-l)';
+    decSub=`Score ${score} abaixo do mínimo de ${rule.s_min} para ${produto} em ${tier}`;
+    acoes=['Não prosseguir','Registrar no sistema','Orientar cliente a regularizar CPF'];
+  } else if (score<rule.s_aprov) {
+    decisao='ZONA CINZA';decIcon='🟡';decColor='var(--yel)';decBg='var(--yel-l)';
+    decSub=`Score ${score} na faixa ${rule.cinza}. Requer análise do gestor`;
+    acoes=['Encaminhar para gestor comercial (24h)','Registrar como PENDENTE no sistema'];
   } else {
-    decisao = 'APROVADO'; decIcon = '✅';
-    decColor = 'var(--grn)'; decBg = 'var(--grn-l)';
-    decSub = `Score ${score} ≥ ${rule.s_aprov}. Aprovação direta para ${produto}`;
-    acoes = ['Prosseguir com a venda normalmente','Registrar aprovação no sistema','Documentar score consultado'];
+    decisao='APROVADO';decIcon='✅';decColor='var(--grn)';decBg='var(--grn-l)';
+    decSub=`Score ${score} ≥ ${rule.s_aprov}. Aprovação direta para ${produto}`;
+    acoes=['Prosseguir com a venda','Registrar aprovação no sistema','Documentar score consultado'];
   }
-
-  const tierPill = {RESTRITO:'pill-red',MODERADO:'pill-yel',PADRÃO:'pill-grn'}[tier];
-  const riscoPill = {CRÍTICO:'pill-red',ALTO:'pill-org',MÉDIO:'pill-yel',BAIXO:'pill-grn'}[rule.risco];
-
-  res.className = 'card resultado';
-  res.innerHTML = `
+  
+  const tierPill={RESTRITO:'pill-red',MODERADO:'pill-yel',PADRÃO:'pill-grn'}[tier]||'pill-muted';
+  const riscoPill={CRÍTICO:'pill-red',ALTO:'pill-org',MÉDIO:'pill-yel',BAIXO:'pill-grn'}[rule.risco];
+  
+  res.className='card resultado';
+  res.innerHTML=`
     <div class="res-decisao" style="background:${decBg};border:1px solid ${decColor}30">
       <div class="dec-label" style="color:${decColor}">${decIcon} ${decisao}</div>
-      <div class="dec-sub" style="color:${decColor}aa">${decSub}</div>
+      <div class="dec-sub" style="color:${decColor}bb">${decSub}</div>
     </div>
-    ${nome ? `<div class="res-row"><span class="res-key">Cliente</span><span class="res-val">${nome}</span></div>` : ''}
-    <div class="res-row"><span class="res-key">Cidade</span><span class="res-val">${cidade} <span class="res-badge ${tierPill}">${tier}</span></span></div>
+    ${nome?`<div class="res-row"><span class="res-key">Cliente</span><span class="res-val">${nome}</span></div>`:''}
+    <div class="res-row">
+      <span class="res-key">Cidade</span>
+      <span class="res-val">
+        ${cidade}
+        <span class="res-badge ${tierPill}">${tier}</span>
+        ${cidadeData?`<span class="res-badge pill-blu">${cidadeData.taxa}% inadimpl.</span>`:''}
+      </span>
+    </div>
     <div class="res-row"><span class="res-key">Produto</span><span class="res-val">${produto} <span class="res-badge ${riscoPill}">${rule.risco}</span></span></div>
     <div class="res-row"><span class="res-key">Score Serasa</span><span class="res-val" style="color:${score>=rule.s_aprov?'var(--grn)':score>=rule.s_min?'var(--yel)':'var(--red)'}">${score}</span></div>
     <div class="res-row"><span class="res-key">Mínimo exigido</span><span class="res-val">${rule.s_min}</span></div>
     <div class="res-row"><span class="res-key">Zona Cinza</span><span class="res-val" style="color:var(--yel)">${rule.cinza}</span></div>
     <div class="res-row"><span class="res-key">Aprovação direta ≥</span><span class="res-val" style="color:var(--grn)">${rule.s_aprov}</span></div>
-    <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--border)">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px">Próximos passos</div>
-      ${acoes.map(a=>`<div style="font-size:11px;color:var(--text);padding:4px 0;padding-left:12px;border-left:2px solid ${decColor};margin-bottom:4px">${a}</div>`).join('')}
+    <div style="margin-top:7px;padding-top:9px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px">Próximos passos</div>
+      ${acoes.map(a=>`<div style="font-size:11px;color:var(--text);padding:3px 0;padding-left:9px;border-left:2px solid ${decColor};margin-bottom:3px">${a}</div>`).join('')}
     </div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px">Consulta: ${new Date().toLocaleString('pt-BR')}</div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:5px">Consulta: ${new Date().toLocaleString('pt-BR')}</div>
   `;
 }
 
-// ── RENDER TABLES ────────────────────────────────────────────
-function tierBadge(t) {
-  const cls = {RESTRITO:'pill-red',MODERADO:'pill-yel',PADRÃO:'pill-grn'}[t];
-  return `<span class="res-badge ${cls}">${t}</span>`;
-}
-function riscoBadge(r) {
-  const cls = {CRÍTICO:'pill-red',ALTO:'pill-org',MÉDIO:'pill-yel',BAIXO:'pill-grn'}[r];
-  return `<span class="res-badge ${cls}">${r}</span>`;
-}
-
-
-// ── CONFIGURADOR DE BASE ─────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// CONFIGURADOR
+// ══════════════════════════════════════════════════════════════
 function updateBase(val) {
   BASE = parseInt(val);
   document.getElementById('baseDisplay').textContent = BASE;
   document.getElementById('baseSlider').value = BASE;
-  const delta = BASE - BASE_ORIGINAL;
-  document.getElementById('deltaVal').textContent = (delta >= 0 ? '+' : '') + delta;
-  document.getElementById('minVal').textContent = BASE;
-  document.getElementById('aprovVal').textContent = BASE + 25;
+  const delta = BASE-BASE_ORIGINAL;
+  document.getElementById('deltaVal').textContent = (delta>=0?'+':'')+delta;
+  document.getElementById('minVal').textContent   = BASE;
+  document.getElementById('aprovVal').textContent = BASE+25;
   [300,350,400,450,500].forEach(v => {
-    const btn = document.getElementById('preset-' + v);
-    if (btn) btn.className = 'preset-btn' + (v === BASE ? ' active' : '');
+    const btn = document.getElementById('preset-'+v);
+    if (btn) btn.className = 'preset-btn'+(v===BASE?' active':'');
   });
   renderCityTable();
   renderProdTable();
 }
-function setBase(val) { updateBase(val); }
+function setBase(val){updateBase(val);}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER TABLES
+// ══════════════════════════════════════════════════════════════
+function tierBadge(t){
+  const c={RESTRITO:'pill-red',MODERADO:'pill-yel',PADRÃO:'pill-grn'}[t]||'pill-muted';
+  return `<span class="res-badge ${c}">${t}</span>`;
+}
+function riscoBadge(r){
+  const c={CRÍTICO:'pill-red',ALTO:'pill-org',MÉDIO:'pill-yel',BAIXO:'pill-grn'}[r];
+  return `<span class="res-badge ${c}">${r}</span>`;
+}
+
+function setProdFilter(produto, btn) {
+  activeProdFilter = produto;
+  document.querySelectorAll('.prod-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const note   = document.getElementById('prodFilterNote');
+  const header = document.getElementById('taxaColHeader');
+  if (produto === 'Todos') {
+    note.style.display = 'none';
+    header.textContent = 'Taxa Real (geral)';
+  } else {
+    note.style.display = 'block';
+    note.innerHTML = `📊 Exibindo contratos e taxa de inadimplência exclusivamente para <strong>${produto}</strong>. Cidades reordenadas pela taxa do produto. Cidades sem volume mínimo (10 contratos) são ocultadas.`;
+    header.textContent = `Taxa — ${produto}`;
+  }
+  renderCityTable();
+}
 
 function renderCityTable() {
-  const cityBody = document.getElementById('city-body');
-  cityBody.innerHTML = '';
-  let lastTier2 = '';
-  getCidades().forEach(c => {
-    if (c.tier !== lastTier2) {
-      const tierColors = {RESTRITO:'var(--red)',MODERADO:'var(--yel)',PADRÃO:'var(--grn)'};
-      cityBody.innerHTML += `<tr><td colspan="8" style="background:var(--surf2);font-size:10px;font-weight:700;letter-spacing:1px;color:${tierColors[c.tier]};text-transform:uppercase;padding:6px 14px">● ${c.tier}</td></tr>`;
-      lastTier2 = c.tier;
+  const body    = document.getElementById('cityBody');
+  body.innerHTML = '';
+
+  const isFiltered = activeProdFilter !== 'Todos';
+
+  // Build display list
+  let list = getCidades().map(c => {
+    if (!isFiltered) {
+      return { ...c, displayTotal: c.total || 0, displayInadim: c.inadim || 0, displayTaxa: c.taxa || 0, hasProd: true };
     }
-    cityBody.innerHTML += `<tr>
+    const prodData = (CIDADE_PRODUTO[c.cidade] || {})[activeProdFilter];
+    if (!prodData) return null; // city has no data for this product
+    return {
+      ...c,
+      displayTotal:  prodData.total,
+      displayInadim: prodData.inadim,
+      displayTaxa:   prodData.taxa,
+      hasProd: true
+    };
+  }).filter(Boolean);
+
+  // When filtered: re-sort by product taxa and re-tier
+  if (isFiltered) {
+    list = list.sort((a, b) => b.displayTaxa - a.displayTaxa).map(c => {
+      let tier;
+      if (c.displayTaxa >= 12)     tier = 'RESTRITO';
+      else if (c.displayTaxa >= 7) tier = 'MODERADO';
+      else                          tier = 'PADRÃO';
+      return { ...c, displayTier: tier };
+    });
+  } else {
+    list = list.map(c => ({ ...c, displayTier: c.tier }));
+  }
+
+  // Render grouped by display tier
+  let lastTier = '';
+  list.forEach(c => {
+    const tier = c.displayTier;
+
+    if (tier !== lastTier) {
+      const tc     = {RESTRITO:'var(--red)',MODERADO:'var(--yel)',PADRÃO:'var(--grn)'}[tier];
+      const limite = {RESTRITO:'≥ 12%',MODERADO:'7–12%',PADRÃO:'< 7%'}[tier];
+      const nota   = isFiltered ? ` · ${activeProdFilter}` : ' · Taxa geral';
+      body.innerHTML += `<tr class="tier-sec"><td colspan="8" style="color:${tc}">● ${tier} — Taxa${nota} ${limite}</td></tr>`;
+      lastTier = tier;
+    }
+
+    const taxa  = c.displayTaxa;
+    const bc    = taxa >= 12 ? 'var(--red)' : taxa >= 7 ? 'var(--yel)' : 'var(--grn)';
+    const barW  = Math.min(100, (taxa / 30) * 100);
+
+    // Delta badge vs general rate (only when filtered)
+    let deltaBadge = '';
+    if (isFiltered) {
+      const diff = parseFloat((taxa - c.taxa).toFixed(1));
+      if (Math.abs(diff) >= 2) {
+        const cls   = diff > 0 ? 'delta-high' : 'delta-low';
+        const arrow = diff > 0 ? '▲' : '▼';
+        deltaBadge  = ` <span class="taxa-delta ${cls}">${arrow}${Math.abs(diff)}pp vs geral</span>`;
+      }
+    }
+
+    // Tier badge: show product tier when filtered, general tier in tooltip
+    const tierDisplay = isFiltered
+      ? tierBadge(c.displayTier) + `<span class="res-badge pill-muted" style="margin-left:4px;font-size:9px" title="Tier geral da cidade">geral: ${c.tier}</span>`
+      : tierBadge(c.tier);
+
+    body.innerHTML += `<tr>
       <td style="font-weight:500">${c.cidade}</td>
-      <td>${tierBadge(c.tier)}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace">${c.cancels}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:${c.pct_crit>=15?'var(--red)':c.pct_crit>=8?'var(--yel)':'var(--grn)'}">${c.pct_crit}%</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace">${c.ss_hist}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; ${c.s_min}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">${c.cinza}</td>
-      <td style="text-align:center;font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ ${c.s_aprov}</td>
+      <td>${tierDisplay}</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${(c.displayTotal||0).toLocaleString('pt-BR')}</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${c.displayInadim ?? '—'}</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:${barW}%;background:${bc}"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${bc};font-weight:600">${taxa}%</span>
+          ${deltaBadge}
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; ${c.s_min}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">${c.cinza}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ ${c.s_aprov}</td>
     </tr>`;
   });
 }
 
 function renderProdTable() {
-  const prodBody = document.getElementById('prod-body');
-  prodBody.innerHTML = '';
-  let lastProd2 = '';
+  const body = document.getElementById('prodBody');
+  body.innerHTML = '';
+  let lastProd = '';
   getProdutos().forEach(p => {
-    if (p.prod !== lastProd2) {
-      prodBody.innerHTML += `<tr><td colspan="7" style="background:#1e2a3a;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:5px 8px">${p.prod}</td></tr>`;
-      lastProd2 = p.prod;
+    if (p.prod !== lastProd) {
+      body.innerHTML += `<tr class="prod-sec"><td colspan="7">${p.prod.toUpperCase()}</td></tr>`;
+      lastProd = p.prod;
     }
-    const bloqColor = p.bloq !== 'Padrão' ? 'var(--org)' : 'var(--muted)';
-    prodBody.innerHTML += `<tr>
+    const bc = p.bloq!=='Padrão'?'var(--org)':'var(--muted)';
+    body.innerHTML += `<tr>
       <td>${p.prod}</td>
       <td>${tierBadge(p.tier)}</td>
       <td>${riscoBadge(p.risco)}</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; ${p.s_min}</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">${p.cinza}</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ ${p.s_aprov}</td>
-      <td style="font-size:10px;color:${bloqColor};font-weight:${p.bloq!=='Padrão'?'600':'400'}">${p.bloq}</td>
+      <td style="font-size:11px;color:${bc};font-weight:${p.bloq!=='Padrão'?600:400}">${p.bloq}</td>
     </tr>`;
   });
 }
 
-// City table — rendered via renderCityTable()
-
-// Product table — rendered via renderProdTable()
-
-// ── INITIAL RENDER ──────────────────────────────────────────
-renderCityTable();
-renderProdTable();
-
-// ── TABS ─────────────────────────────────────────────────────
 function switchTab(id, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + id).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
 }
+
+
+// ══════════════════════════════════════════════════════════════
+// SAVE HTML WITH EMBEDDED DATA
+// ══════════════════════════════════════════════════════════════
+function saveHtml() {
+  // Get current HTML source
+  const src = document.documentElement.outerHTML;
+
+  // Serialize current CIDADES state
+  const cidadesStr = JSON.stringify(CIDADES, null, 2);
+
+  // Find and replace the CIDADES array in the source
+  // Pattern: let CIDADES = [...];
+  const cidadesPattern = /let CIDADES = \[[\s\S]*?\];/;
+  const newCidades = `let CIDADES = ${cidadesStr};`;
+
+  if (!cidadesPattern.test(src)) {
+    alert('Não foi possível localizar o bloco de dados no HTML. Tente novamente.');
+    return;
+  }
+
+  // Also update the status meta texts embedded in HTML
+  const updated = src.replace(cidadesPattern, newCidades);
+
+  // Trigger download
+  const now = new Date();
+  const stamp = now.getFullYear() + ('0'+(now.getMonth()+1)).slice(-2) + ('0'+now.getDate()).slice(-2);
+  const fname = `crivo_turbonet_${stamp}.html`;
+
+  const blob = new Blob([updated], {type: 'text/html;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+buildCitySelect();
+renderCityTable();
+renderProdTable();
 </script>
-</body>
-</html>
+
+
+</body></html>
