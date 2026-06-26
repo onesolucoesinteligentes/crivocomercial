@@ -74,8 +74,8 @@ header{background:var(--navy);padding:0 36px;height:58px;display:flex;align-item
 .config-delta span{color:var(--yel)}
 
 /* TABS */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px}
-.tab{padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .18s;margin-bottom:-1px;white-space:nowrap}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .18s;margin-bottom:-1px;white-space:nowrap;flex-shrink:0}
 .tab:hover{color:var(--text)}
 .tab.active{color:var(--text);border-bottom-color:var(--red)}
 .tab-panel{display:none}.tab-panel.active{display:block}
@@ -156,6 +156,24 @@ header{background:var(--navy);padding:0 36px;height:58px;display:flex;align-item
 .taxa-delta{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:1px 6px;border-radius:3px;margin-left:4px}
 .delta-high{background:var(--red-l);color:var(--red)}
 .delta-low{background:var(--grn-l);color:var(--grn)}
+
+/* CITY SELECTOR PANEL */
+.city-sel-panel{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:16px;display:none}
+.city-sel-panel.open{display:block}
+.city-sel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.city-sel-title{font-size:13px;font-weight:600;color:var(--text)}
+.city-sel-actions{display:flex;gap:8px;flex-wrap:wrap}
+.city-sel-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surf2);color:var(--muted);font-size:11.5px;cursor:pointer;transition:all .18s}
+.city-sel-btn:hover{border-color:var(--blu);color:var(--blu)}
+.city-sel-btn.danger{border-color:var(--red);color:var(--red)}
+.city-sel-grid{display:flex;flex-wrap:wrap;gap:7px}
+.city-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surf2);font-size:11.5px;cursor:pointer;transition:all .18s;user-select:none}
+.city-chip:hover{border-color:var(--blu)}
+.city-chip.selected{border-color:var(--grn);background:var(--grn-l);color:var(--grn)}
+.city-chip.selected .chip-check{color:var(--grn)}
+.city-chip:not(.selected){opacity:.55}
+.chip-check{font-size:11px;width:14px}
+.chip-tier{font-size:9px;font-family:'IBM Plex Mono',monospace;padding:1px 5px;border-radius:3px;margin-left:2px}
 .btn-save-hint{font-size:10.5px;color:var(--muted);text-align:center;margin-top:8px;display:none}
 footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
 </style>
@@ -165,59 +183,16 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
 <header>
   <div class="logo">
     TURBONET <span>CRIVO DE CRÉDITO</span>
-    <span class="logo-badge badge-live" id="dataBadge">Dados ativos · junho de 2026</span>
+    <span class="logo-badge badge-live" id="dataBadge">Compartilhado · jun. de 2026</span>
   </div>
   <div class="header-right">
-    <div class="header-sub" id="headerMeta">19.187 contratos · 984 Serasa<br>Atualizado: junho de 2026</div>
-    <button class="import-btn-hdr" onclick="toggleImport()">
-      📥 Atualizar Base
-    </button>
+    <div class="header-sub" id="headerMeta">19.332 contratos · 984 Serasa<br>Atualizado: junho de 2026</div>
+    
+    
   </div>
 </header>
 
-<!-- IMPORT PANEL -->
-<div class="page" style="padding-bottom:0"><div id="saveBanner" style="background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 10px; padding: 13px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px; font-size: 12px;">
-        <span style="font-size:20px">✅</span>
-        <div style="flex:1">
-          <strong style="color:var(--grn)">Base atualizada com sucesso!</strong>
-          <span style="color:var(--muted);margin-left:10px">18/06/2026, 08:28:55</span><br>
-          <span style="color:var(--muted)">Clique em <strong style="color:var(--grn)">💾 Salvar HTML</strong> para gerar um arquivo com os dados desta importação permanentemente embutidos.</span>
-        </div>
-        <button onclick="saveHtml()" style="background:#1a4a2e;border:1px solid #2a7a46;border-radius:7px;padding:8px 16px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">💾 Salvar HTML</button>
-        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">×</button>
-      </div>
-  <div class="import-panel" id="importPanel">
-    <div class="import-title">📥 Atualização Mensal da Base de Dados</div>
-    <div class="import-desc">
-      Importe as duas planilhas mensalmente para recalcular automaticamente as taxas de inadimplência por cidade, os tiers de risco e todos os thresholds do crivo.<br>
-      <strong>Força de Vendas:</strong> coluna "Cidade", "ID Contrato", "Status Contrato", "Motivo Cancelamento" obrigatórias.<br>
-      <strong>Consulta Serasa:</strong> coluna "Cidade", "SCORE", "Dívidas comerciais - Pefin", "Dívidas Protestadas" obrigatórias.
-    </div>
-    <div class="import-grid">
-      <div class="import-zone done" id="zone-fv" ondragover="dragOver(event,'fv')" ondragleave="dragLeave('fv')" ondrop="dropFile(event,'fv')">
-        <input type="file" accept=".xlsx,.xls" onchange="loadFile(event,'fv')">
-        <div class="iz-icon" id="icon-fv">✅</div>
-        <div class="iz-title">Força de Vendas</div>
-        <div class="iz-hint">Força_de_Vendas.xlsx</div>
-        <div class="iz-status" id="status-fv" style="color: var(--grn);">19.187 registros · Força de Vendas.xlsx</div>
-      </div>
-      <div class="import-zone done" id="zone-se" ondragover="dragOver(event,'se')" ondragleave="dragLeave('se')" ondrop="dropFile(event,'se')">
-        <input type="file" accept=".xlsx,.xls" onchange="loadFile(event,'se')">
-        <div class="iz-icon" id="icon-se">✅</div>
-        <div class="iz-title">Consulta Serasa</div>
-        <div class="iz-hint">CONSULTA_SERASA.xlsx</div>
-        <div class="iz-status" id="status-se" style="color: var(--grn);">984 registros · 2026 - 1º Trimestre - Consulta Serasa.xlsx</div>
-      </div>
-    </div>
-    <button class="btn-process" id="btnProcess" onclick="processFiles()">
-      <div class="process-spinner" id="procSpinner" style="display: none;"></div>
-      <span id="btnProcessLabel">⚡ Recalcular Crivo</span>
-    </button>
-    <button class="btn-process" id="btnSaveHtml" onclick="saveHtml()" style="margin-top: 10px; background: rgb(26, 74, 46); border-color: rgb(42, 122, 70); display: flex;">
-      💾 Salvar HTML com dados embutidos
-    </button>
-  </div>
-</div>
+
 
 <div class="page">
 
@@ -226,18 +201,22 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     <div class="status-dot grn"></div>
     <span id="statusText">Dados atualizados · junho de 2026</span>
     <span class="status-sep">|</span>
-    <span class="status-kpi">Contratos: <span id="skTotal">19.187</span></span>
+    <span class="status-kpi">Contratos: <span id="skTotal">19.332</span></span>
     <span class="status-sep">|</span>
     <span class="status-kpi">Serasa: <span id="skSerasa">984</span></span>
     <span class="status-sep">|</span>
     <span class="status-kpi">Cidades ativas: <span id="skCidades">20</span></span>
     <span class="status-sep">|</span>
-    <span class="status-kpi">Taxa média: <span id="skTaxa">9.5%</span></span>
+    <span class="status-kpi">Taxa média: <span id="skTaxa">4.1%</span></span>
   </div>
 
   <!-- CONFIG -->
+  
   <div class="config-banner">
-    <div><div class="config-label">Score Base</div><div class="config-score-display" id="baseDisplay">400</div></div>
+    <div>
+      <div class="config-label">Score Base</div>
+      <div class="config-score-display" id="baseDisplay">400</div>
+    </div>
     <input type="range" class="config-slider" id="baseSlider" min="300" max="500" step="10" value="400" oninput="updateBase(this.value)">
     <div>
       <div class="config-label" style="margin-bottom:5px">Presets</div>
@@ -252,12 +231,44 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     <div class="config-delta">Delta: <span id="deltaVal">±0</span><br>Mín. PADRÃO: <span id="minVal">400</span> · Aprovado: <span id="aprovVal">425</span></div>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs">
+  <!-- FILTRO DE PERÍODO GLOBAL -->
+  <div style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:5px">Período de análise</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--muted)">De</span>
+        <select id="g-de" onchange="applyGlobalPeriod()" style="background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11.5px;outline:none"><option value="2024-11">Nov/2024</option><option value="2024-12">Dez/2024</option><option value="2025-01">Jan/2025</option><option value="2025-02">Fev/2025</option><option value="2025-03">Mar/2025</option><option value="2025-04">Abr/2025</option><option value="2025-05">Mai/2025</option><option value="2025-06">Jun/2025</option><option value="2025-07">Jul/2025</option><option value="2025-08">Ago/2025</option><option value="2025-09">Set/2025</option><option value="2025-10">Out/2025</option><option value="2025-11">Nov/2025</option><option value="2025-12">Dez/2025</option><option value="2026-01">Jan/2026</option><option value="2026-02">Fev/2026</option><option value="2026-03">Mar/2026</option><option value="2026-04">Abr/2026</option><option value="2026-05">Mai/2026</option><option value="2026-06">Jun/2026</option></select>
+        <span style="font-size:11px;color:var(--muted)">até</span>
+        <select id="g-ate" onchange="applyGlobalPeriod()" style="background:var(--surf2);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:11.5px;outline:none"><option value="2024-11">Nov/2024</option><option value="2024-12">Dez/2024</option><option value="2025-01">Jan/2025</option><option value="2025-02">Fev/2025</option><option value="2025-03">Mar/2025</option><option value="2025-04">Abr/2025</option><option value="2025-05">Mai/2025</option><option value="2025-06">Jun/2025</option><option value="2025-07">Jul/2025</option><option value="2025-08">Ago/2025</option><option value="2025-09">Set/2025</option><option value="2025-10">Out/2025</option><option value="2025-11">Nov/2025</option><option value="2025-12">Dez/2025</option><option value="2026-01">Jan/2026</option><option value="2026-02">Fev/2026</option><option value="2026-03">Mar/2026</option><option value="2026-04">Abr/2026</option><option value="2026-05">Mai/2026</option><option value="2026-06">Jun/2026</option></select>
+      </div>
+    </div>
+    <div style="border-left:1px solid var(--border);height:36px"></div>
+    <div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.5);margin-bottom:5px">Atalhos</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="preset-btn" id="gp-2024" onclick="setGlobalPeriod('2024-11','2024-12')">2024</button>
+        <button class="preset-btn" id="gp-2025" onclick="setGlobalPeriod('2025-01','2025-12')">2025</button>
+        <button class="preset-btn" id="gp-2026" onclick="setGlobalPeriod('2026-01','2026-06')">2026</button>
+        <button class="preset-btn" id="gp-all" onclick="setGlobalPeriod(COHORTS_ALL[0],COHORTS_ALL[COHORTS_ALL.length-1])">Tudo</button>
+        <button class="preset-btn" id="gp-3m" onclick="setGlobalPeriodLast(3)">Últ. 3m</button>
+        <button class="preset-btn" id="gp-6m" onclick="setGlobalPeriodLast(6)">Últ. 6m</button>
+        <button class="preset-btn" id="gp-12m" onclick="setGlobalPeriodLast(12)">Últ. 12m</button>
+      </div>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:10px;color:var(--muted)">Contratos no período</div>
+      <div id="g-total" style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:var(--text)">17.962</div>
+      <div style="font-size:10px;color:var(--muted)">Taxa média <span id="g-taxa" style="font-weight: 600; color: var(--grn);">18.4%</span></div>
+    </div>
+  </div>
+
+<div class="tabs">
     <button class="tab" onclick="switchTab('simulador',this)">🔎 Simulador</button>
     <button class="tab active" onclick="switchTab('cidades',this)">🏙️ Crivo por Cidade</button>
     <button class="tab" onclick="switchTab('produtos',this)">📦 Matriz Produtos</button>
     <button class="tab" onclick="switchTab('historico',this)">🕐 Histórico</button>
+    <button class="tab" onclick="switchTab('evolucao',this);renderEvolucao()">📅 Evolução Anual</button>
+    <button class="tab" onclick="switchTab('manual',this)">📖 Como Funciona</button>
   </div>
 
   <!-- ── SIMULADOR ── -->
@@ -267,7 +278,7 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <div class="card">
         <div class="card-title">Dados do Cliente</div>
         <div class="field"><label>Nome</label><input id="f-nome" type="text" placeholder="Nome completo"></div>
-        <div class="field"><label>Cidade</label><select id="f-cidade"><option value="">Selecionar cidade...</option><optgroup label="🔴 RESTRITO (taxa ≥ 12%)"><option value="Palmares Paulista">Palmares Paulista — 22.5%</option><option value="Onda Verde">Onda Verde — 14.5%</option><option value="Paraíso">Paraíso — 13.9%</option></optgroup><optgroup label="🟡 MODERADO (taxa 7–12%)"><option value="Colômbia">Colômbia — 11.9%</option><option value="Taiaçu">Taiaçu — 11.9%</option><option value="Barretos">Barretos — 11.5%</option><option value="Pirangi">Pirangi — 9.4%</option><option value="Taiúva">Taiúva — 9.3%</option><option value="Novais">Novais — 9.1%</option><option value="Tabapuã">Tabapuã — 9%</option><option value="Severínia">Severínia — 8.8%</option><option value="Bebedouro">Bebedouro — 8.6%</option><option value="Altair">Altair — 8.1%</option><option value="Guaraci">Guaraci — 7.8%</option><option value="Monte Azul Paulista">Monte Azul Paulista — 7%</option></optgroup><optgroup label="🟢 PADRÃO (taxa &lt; 7%)"><option value="Vista Alegre Do Alto">Vista Alegre Do Alto — 6.6%</option><option value="Olímpia">Olímpia — 6.2%</option><option value="Taquaral">Taquaral — 5.1%</option><option value="Embaúba">Embaúba — 4.2%</option><option value="Cajobi">Cajobi — 3.8%</option></optgroup><optgroup label="⚪ Outras (usar tier Moderado)"><option value="Outras cidades">Outras cidades</option></optgroup></select></div>
+        <div class="field"><label>Cidade</label>          <select id="f-cidade"><option value="">Selecionar cidade...</option><optgroup label="🔴 RESTRITO (taxa ≥ 12%)"><option value="Jaborandi">Jaborandi — 100%</option><option value="São José Do Rio Preto">São José Do Rio Preto — 57.1%</option><option value="Guapiaçu">Guapiaçu — 40%</option><option value="Monte Verde">Monte Verde — 33.3%</option><option value="Palmares Paulista">Palmares Paulista — 32.5%</option></optgroup><optgroup label="🟡 MODERADO (taxa 7–12%)"><option value="Barretos">Barretos — 25.9%</option><option value="Taiaçu">Taiaçu — 25.7%</option><option value="Viradouro">Viradouro — 25%</option><option value="Colômbia">Colômbia — 20.7%</option><option value="Paraíso">Paraíso — 20.2%</option></optgroup><optgroup label="🟢 PADRÃO (taxa &lt; 7%)"><option value="Severínia">Severínia — 19.6%</option><option value="Onda Verde">Onda Verde — 19.5%</option><option value="Bebedouro">Bebedouro — 19.2%</option><option value="Pirangi">Pirangi — 18.8%</option><option value="Altair">Altair — 17.8%</option><option value="Monte Azul Paulista">Monte Azul Paulista — 16.1%</option><option value="Taquaral">Taquaral — 15.9%</option><option value="Novais">Novais — 15.8%</option><option value="Taiúva">Taiúva — 15%</option><option value="Tabapuã">Tabapuã — 14.7%</option><option value="Vista Alegre Do Alto">Vista Alegre Do Alto — 14.2%</option><option value="Olímpia">Olímpia — 12.5%</option><option value="Guaraci">Guaraci — 11.8%</option><option value="Embaúba">Embaúba — 11.1%</option><option value="Cajobi">Cajobi — 9.8%</option><option value="Catanduva">Catanduva — 0%</option><option value="Frutal">Frutal — 0%</option><option value="Laranjeiras">Laranjeiras — 0%</option><option value="Marcondésia">Marcondésia — 0%</option><option value="Monte Verde Paulista">Monte Verde Paulista — 0%</option><option value="Piracicaba">Piracicaba — 0%</option><option value="Ribeiro Dos Santos">Ribeiro Dos Santos — 0%</option></optgroup><optgroup label="⚪ Outras (usar tier Moderado)"><option value="Outras cidades">Outras cidades</option></optgroup></select></div>
         <div class="field"><label>Produto</label>
           <select id="f-produto">
             <option value="">Selecionar produto...</option>
@@ -301,9 +312,30 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
 
   <!-- ── CIDADES ── -->
   <div id="tab-cidades" class="tab-panel active">
-    <div class="sec">Crivo por Cidade — Taxa Real de Inadimplência</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="sec" style="margin-bottom:0;flex:1">Crivo por Cidade — Taxa Real de Inadimplência</div>
+      <button class="city-sel-btn" onclick="toggleCitySel()" id="btnCitySel" style="margin-left:12px;white-space:nowrap">
+        🏙️ Selecionar Municípios <span id="citySelCount" style="color: var(--grn);">(32 de 32)</span>
+      </button>
+    </div>
+    <!-- PAINEL DE SELEÇÃO DE MUNICÍPIOS -->
+    <div class="city-sel-panel" id="citySelPanel">
+      <div class="city-sel-header">
+        <div class="city-sel-title">Selecione os municípios que deseja exibir na tabela</div>
+        <div class="city-sel-actions">
+          <button class="city-sel-btn" onclick="selectAllCities()">✓ Marcar todos</button>
+          <button class="city-sel-btn" onclick="selectNoneCities()">☐ Desmarcar todos</button>
+          <button class="city-sel-btn" onclick="selectByTier('RESTRITO')">🔴 Só Restrito</button>
+          <button class="city-sel-btn" onclick="selectByTier('MODERADO')">🟡 Só Moderado</button>
+          <button class="city-sel-btn" onclick="selectByTier('PADRÃO')">🟢 Só Padrão</button>
+          <button class="city-sel-btn danger" onclick="toggleCitySel()">✕ Fechar</button>
+        </div>
+      </div>
+      <div class="city-sel-grid" id="cityChips"></div>
+    </div>
+
     <div class="alert alert-yel" style="margin-bottom:14px">
-      <strong>Metodologia v2:</strong> Tier calculado pela taxa de inadimplência real (cancelamentos ÷ total de contratos). RESTRITO ≥ 12% · MODERADO 7–12% · PADRÃO &lt; 7%. Mín. 50 contratos para classificação.
+      <strong>Metodologia v2:</strong> Tier calculado pela taxa de inadimplência real (cancelamentos ÷ total de contratos). RESTRITO &gt; 28% · MODERADO 20–28% · PADRÃO &lt; 20%. Período controlado pelo filtro global. Todas as cidades exibidas — cidades com baixo volume marcadas com badge ⚠.
     </div>
     <div class="prod-filter-bar">
       <span class="prod-filter-label">Filtrar por produto:</span>
@@ -313,69 +345,99 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <button class="prod-filter-btn" onclick="setProdFilter('Telefonia Móvel',this)">📱 Telefonia Móvel</button>
       <button class="prod-filter-btn" onclick="setProdFilter('Telefonia Fixa',this)">☎️ Telefonia Fixa</button>
     </div>
-    <div id="prodFilterNote" style="display: none;" class="alert alert-blu">📊 Exibindo contratos e taxa de inadimplência exclusivamente para <strong>Internet</strong>. Cidades reordenadas pela taxa do produto. Cidades sem volume mínimo (10 contratos) são ocultadas.</div>
+    <div id="prodFilterNote" style="display:none" class="alert alert-blu"></div>
     <div class="tbl-wrap"><table class="tbl" id="cityTable">
       <thead><tr>
         <th>Cidade</th><th>Tier</th><th class="r">Contratos</th><th class="r">Inadimpl.</th>
-        <th id="taxaColHeader">Taxa Real (geral)</th>
+        <th id="taxaColHeader">Taxa Real</th>
         <th style="color:var(--red)">Score Mín.</th>
         <th style="color:var(--yel)">Zona Cinza</th>
         <th style="color:var(--grn)">Aprovado ≥</th>
       </tr></thead>
-      <tbody id="cityBody"><tr class="tier-sec"><td colspan="8" style="color:var(--red)">● RESTRITO — Taxa · Taxa geral ≥ 12%</td></tr><tr>
+      <tbody id="cityBody"><tr class="tier-sec"><td colspan="8" style="color:var(--red)">● RESTRITO — Taxa · Taxa geral &gt; 28%</td></tr><tr>
+      <td style="font-weight:500">Jaborandi&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:100%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">100%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
+      <td style="font-weight:500">São José Do Rio Preto&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">7</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:100%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">57.1%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
+      <td style="font-weight:500">Guapiaçu&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">5</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:100%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">40%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
+      <td style="font-weight:500">Monte Verde&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-red">RESTRITO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">3</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:100%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">33.3%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
+    </tr><tr>
       <td style="font-weight:500">Palmares Paulista</td>
       <td><span class="res-badge pill-red">RESTRITO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">169</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">38</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">157</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">51</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:75%;background:var(--red)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">22.5%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:100%;background:var(--red)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">32.5%</span>
           
         </div>
       </td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
-    </tr><tr>
-      <td style="font-weight:500">Onda Verde</td>
-      <td><span class="res-badge pill-red">RESTRITO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">165</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">24</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:48.333333333333336%;background:var(--red)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">14.5%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
-    </tr><tr>
-      <td style="font-weight:500">Paraíso</td>
-      <td><span class="res-badge pill-red">RESTRITO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">296</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">41</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:46.33333333333333%;background:var(--red)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600">13.9%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 460</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">460–499</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 500</td>
-    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--yel)">● MODERADO — Taxa · Taxa geral 7–12%</td></tr><tr>
-      <td style="font-weight:500">Colômbia</td>
+    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--yel)">● MODERADO — Taxa · Taxa geral 20–28%</td></tr><tr>
+      <td style="font-weight:500">Barretos</td>
       <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">683</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">81</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4.273</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1108</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:39.666666666666664%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.9%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:86.33333333333333%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">25.9%</span>
           
         </div>
       </td>
@@ -385,12 +447,12 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     </tr><tr>
       <td style="font-weight:500">Taiaçu</td>
       <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">243</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">29</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">222</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">57</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:39.666666666666664%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.9%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:85.66666666666667%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">25.7%</span>
           
         </div>
       </td>
@@ -398,14 +460,14 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
     </tr><tr>
-      <td style="font-weight:500">Barretos</td>
+      <td style="font-weight:500">Viradouro&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
       <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4.444</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">510</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:38.333333333333336%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">11.5%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:83.33333333333334%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">25%</span>
           
         </div>
       </td>
@@ -413,14 +475,14 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
     </tr><tr>
-      <td style="font-weight:500">Pirangi</td>
+      <td style="font-weight:500">Colômbia</td>
       <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">415</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">39</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">624</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">129</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:31.333333333333336%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.4%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:69%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">20.7%</span>
           
         </div>
       </td>
@@ -428,134 +490,29 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
     </tr><tr>
-      <td style="font-weight:500">Taiúva</td>
+      <td style="font-weight:500">Paraíso</td>
       <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">215</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">20</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">277</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">56</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:31%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.3%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:67.33333333333333%;background:var(--yel)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">20.2%</span>
           
         </div>
       </td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Novais</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">351</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">32</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:30.333333333333336%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9.1%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Tabapuã</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">701</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">63</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:30%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">9%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
+    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--grn)">● PADRÃO — Taxa · Taxa geral &lt; 20%</td></tr><tr>
       <td style="font-weight:500">Severínia</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.193</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">105</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:29.333333333333332%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.8%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Bebedouro</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2.905</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">250</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:28.666666666666668%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.6%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Altair</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">235</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">19</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:26.999999999999996%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">8.1%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Guaraci</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">927</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">72</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:26%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">7.8%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr>
-      <td style="font-weight:500">Monte Azul Paulista</td>
-      <td><span class="res-badge pill-yel">MODERADO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">964</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">67</td>
-      <td>
-        <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:23.333333333333332%;background:var(--yel)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);font-weight:600">7%</span>
-          
-        </div>
-      </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 430</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">430–459</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 460</td>
-    </tr><tr class="tier-sec"><td colspan="8" style="color:var(--grn)">● PADRÃO — Taxa · Taxa geral &lt; 7%</td></tr><tr>
-      <td style="font-weight:500">Vista Alegre Do Alto</td>
       <td><span class="res-badge pill-grn">PADRÃO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">381</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">25</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.132</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">222</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:22%;background:var(--grn)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">6.6%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:65.33333333333334%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">19.6%</span>
           
         </div>
       </td>
@@ -563,14 +520,74 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
     </tr><tr>
-      <td style="font-weight:500">Olímpia</td>
+      <td style="font-weight:500">Onda Verde</td>
       <td><span class="res-badge pill-grn">PADRÃO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">3.403</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">211</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">154</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">30</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:20.666666666666668%;background:var(--grn)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">6.2%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:65%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">19.5%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Bebedouro</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2.782</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">534</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:64%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">19.2%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Pirangi</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">373</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">70</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:62.66666666666667%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">18.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Altair</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">213</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">38</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:59.333333333333336%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">17.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Monte Azul Paulista</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">878</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">141</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:53.66666666666667%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">16.1%</span>
           
         </div>
       </td>
@@ -580,12 +597,102 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     </tr><tr>
       <td style="font-weight:500">Taquaral</td>
       <td><span class="res-badge pill-grn">PADRÃO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">136</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">7</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">132</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">21</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:17%;background:var(--grn)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">5.1%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:53%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">15.9%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Novais</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">322</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">51</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:52.66666666666667%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">15.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Taiúva</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">200</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">30</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:50%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">15%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Tabapuã</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">648</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">95</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:49%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">14.7%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Vista Alegre Do Alto</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">359</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">51</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:47.333333333333336%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">14.2%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Olímpia</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">3.148</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">393</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:41.66666666666667%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">12.5%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Guaraci</td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">838</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">99</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:39.333333333333336%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">11.8%</span>
           
         </div>
       </td>
@@ -595,12 +702,12 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     </tr><tr>
       <td style="font-weight:500">Embaúba</td>
       <td><span class="res-badge pill-grn">PADRÃO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">166</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">7</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">153</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">17</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:14.000000000000002%;background:var(--grn)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">4.2%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:37%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">11.1%</span>
           
         </div>
       </td>
@@ -610,12 +717,117 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     </tr><tr>
       <td style="font-weight:500">Cajobi</td>
       <td><span class="res-badge pill-grn">PADRÃO</span></td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.115</td>
-      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">42</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">1.018</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">100</td>
       <td>
         <div class="taxa-bar">
-          <div class="taxa-track"><div class="taxa-fill" style="width:12.666666666666664%;background:var(--grn)"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">3.8%</span>
+          <div class="taxa-track"><div class="taxa-fill" style="width:32.66666666666667%;background:var(--org)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);font-weight:600">9.8%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Catanduva&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">9</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Frutal&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">12</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Laranjeiras&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">3</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Marcondésia&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Monte Verde Paulista&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">4</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Piracicaba&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">2</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
+          
+        </div>
+      </td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; 400</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">400–424</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ 425</td>
+    </tr><tr>
+      <td style="font-weight:500">Ribeiro Dos Santos&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">⚠ baixo vol.</span></td>
+      <td><span class="res-badge pill-grn">PADRÃO</span></td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">6</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace">0</td>
+      <td>
+        <div class="taxa-bar">
+          <div class="taxa-track"><div class="taxa-fill" style="width:0%;background:var(--grn)"></div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);font-weight:600">0%</span>
           
         </div>
       </td>
@@ -746,15 +958,15 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     <div id="historicoList">
     <div class="history-item">
       <div>
-        <div class="hi-date">junho de 2026 · Importado em 18/06/2026, 08:28:55</div>
+        <div class="hi-date">junho de 2026 · Importado em 26/06/2026, 08:49:39</div>
         <div class="hi-info" style="margin-top:4px">
-          19.187 contratos · 984 consultas Serasa · 20 cidades ativas
+          19.332 contratos · 984 consultas Serasa · 20 cidades ativas
           <span class="hi-tag" style="background:var(--grn-l);color:var(--grn)">✓ Ativo</span>
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px">
-          Taxa média: 9.5%
-           · Maior risco: Palmares Paulista 22.5%
-           · Menor: Cajobi 3.8%
+          Taxa média: 4.1%
+           · Maior risco: Barretos 6.8%
+           · Menor: Cajobi 2.3%
         </div>
       </div>
     </div>
@@ -771,11 +983,362 @@ footer{border-top:1px solid var(--border);padding:13px 36px;font-family:'IBM Ple
     </div>
   </div>
 
+  <!-- ── EVOLUÇÃO ANUAL ── -->
+  <div id="tab-evolucao" class="tab-panel">
+    <div class="sec">Índice de Cancelamento por Cidade · Produto · Ano</div>
+    <div class="alert alert-blu" style="margin-bottom:16px">
+      <strong>Como ler:</strong> Taxa real mensal — sem corte de maturação. Os números crescem naturalmente a cada importação conforme novos cancelamentos são registrados. Badge <span style="background:rgba(232,76,61,.15);color:var(--red);font-size:10px;padding:1px 5px;border-radius:3px;font-family:monospace">⚠Nm</span> = meses de maturação baixo (taxa ainda crescerá). Badge <span style="background:rgba(245,166,35,.15);color:var(--yel);font-size:10px;padding:1px 5px;border-radius:3px;font-family:monospace">~Nm</span> = maturação parcial.
+    </div>
+
+    <!-- Filtros: Cidade e Produto (período controlado pelo seletor global acima) -->
+    <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <span class="prod-filter-label">Cidade:</span>
+      <select id="evol-cidade" onchange="renderEvolucao()" style="background:var(--surf2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12px;outline:none;min-width:160px">
+        <option value="">Todas</option>
+      <option value="Altair">Altair</option><option value="Bady Bassitt">Bady Bassitt</option><option value="Barretos">Barretos</option><option value="Bebedouro">Bebedouro</option><option value="Cajobi">Cajobi</option><option value="Catanduva">Catanduva</option><option value="Colina">Colina</option><option value="Colômbia">Colômbia</option><option value="Embaúba">Embaúba</option><option value="Fernando Prestes">Fernando Prestes</option><option value="Fronteira">Fronteira</option><option value="Frutal">Frutal</option><option value="Guapiaçu">Guapiaçu</option><option value="Guaraci">Guaraci</option><option value="Jaborandi">Jaborandi</option><option value="Laranjeiras">Laranjeiras</option><option value="Marapoama">Marapoama</option><option value="Marcondésia">Marcondésia</option><option value="Mirassol">Mirassol</option><option value="Monte Azul">Monte Azul</option><option value="Monte Azul Paulista">Monte Azul Paulista</option><option value="Monte Verde">Monte Verde</option><option value="Monte Verde Paulista">Monte Verde Paulista</option><option value="Nova Granada">Nova Granada</option><option value="Novais">Novais</option><option value="Olímpia">Olímpia</option><option value="Onda Verde">Onda Verde</option><option value="Palmares Paulista">Palmares Paulista</option><option value="Paraíso">Paraíso</option><option value="Piracicaba">Piracicaba</option><option value="Pirangi">Pirangi</option><option value="Planura">Planura</option><option value="Ribeiro Dos Santos">Ribeiro Dos Santos</option><option value="Serra Azul">Serra Azul</option><option value="Severínia">Severínia</option><option value="Suinana">Suinana</option><option value="São José Do Rio Preto">São José Do Rio Preto</option><option value="Tabapuã">Tabapuã</option><option value="Taiaçu">Taiaçu</option><option value="Taiúva">Taiúva</option><option value="Taquaral">Taquaral</option><option value="Terra Roxa">Terra Roxa</option><option value="Valparaíso">Valparaíso</option><option value="Viradouro">Viradouro</option><option value="Vista Alegre Do Alto">Vista Alegre Do Alto</option></select>
+      <span class="prod-filter-label" style="margin-left:6px">Produto:</span>
+      <select id="evol-produto" onchange="renderEvolucao()" style="background:var(--surf2);border:1px solid var(--border);border-radius:7px;padding:7px 12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:12px;outline:none">
+        <option value="">Todos</option>
+        <option value="Internet">🌐 Internet</option>
+        <option value="TV">📺 TV</option>
+        <option value="Telefonia Móvel">📱 Telefonia Móvel</option>
+        <option value="Telefonia Fixa">☎️ Telefonia Fixa</option>
+      </select>
+      <span style="font-size:11px;color:var(--muted);margin-left:8px">Período: controlado pelo seletor global acima</span>
+    </div>
+
+    <!-- Resumo do período selecionado -->
+    <div id="evolResumo" style="display:none;background:var(--surf2);border-radius:8px;padding:11px 16px;margin-bottom:14px;font-size:12px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap"></div>
+
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Cidade</th>
+          <th>Produto</th>
+          <th style="color:var(--muted)">Ano</th>
+          <th class="r">Vendas</th>
+          <th class="r">Inadimpl.</th>
+          <th>Taxa</th>
+          <th>Variação</th>
+        </tr></thead>
+        <tbody id="evolucaoBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── MANUAL ── -->
+  <div id="tab-manual" class="tab-panel">
+
+    <!-- Header -->
+    <div style="background:var(--navy);border-radius:12px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;right:0;width:200px;height:100%;background:linear-gradient(135deg,rgba(232,76,61,.15),transparent);pointer-events:none"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px">Documentação Interna</div>
+      <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px;font-family:'IBM Plex Sans',sans-serif">Crivo de Crédito — Como Funciona</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;max-width:700px">
+        Este documento explica a lógica do crivo, como os tiers são calculados, o que cada decisão significa e como interpretar os dados. Destinado à equipe comercial, gestores e diretoria.
+      </div>
+    </div>
+
+    <!-- Índice rápido -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px">
+      <a href="#m-objetivo" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-objetivo').scrollIntoView({behavior:'smooth'});return false">1. Objetivo</a>
+      <a href="#m-pilares" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-pilares').scrollIntoView({behavior:'smooth'});return false">2. Os dois pilares</a>
+      <a href="#m-tiers" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-tiers').scrollIntoView({behavior:'smooth'});return false">3. Tiers por cidade</a>
+      <a href="#m-produtos" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-produtos').scrollIntoView({behavior:'smooth'});return false">4. Thresholds por produto</a>
+      <a href="#m-decisoes" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-decisoes').scrollIntoView({behavior:'smooth'});return false">5. Tipos de decisão</a>
+      <a href="#m-periodo" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-periodo').scrollIntoView({behavior:'smooth'});return false">6. Filtro de período</a>
+      <a href="#m-maturacao" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-maturacao').scrollIntoView({behavior:'smooth'});return false">7. Maturação</a>
+      <a href="#m-atualizacao" style="padding:6px 14px;background:var(--surf);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;text-decoration:none" onclick="document.getElementById('m-atualizacao').scrollIntoView({behavior:'smooth'});return false">8. Atualização mensal</a>
+    </div>
+
+    <!-- 1. Objetivo -->
+    <div id="m-objetivo" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+        Objetivo do Crivo
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:12px">
+        O Crivo de Crédito é uma política de aprovação de novos clientes baseada em dados históricos reais da operação da TurboNet. Seu objetivo é reduzir a inadimplência ao estabelecer critérios mínimos de score Serasa antes de ativar um contrato.
+      </p>
+      <div style="background:var(--surf2);border-left:3px solid var(--yel);border-radius:0 6px 6px 0;padding:12px 16px;font-size:12.5px;color:var(--muted)">
+        <strong style="color:var(--yel)">Regra base da empresa:</strong> Score Serasa &lt; 400 = Negado · Score ≥ 400 = Aprovado.<br>
+        Este crivo <strong style="color:var(--text)">refina essa regra</strong>: para cidades e produtos com histórico de inadimplência elevado, o threshold de aprovação sobe proporcionalmente.
+      </div>
+    </div>
+
+    <!-- 2. Os dois pilares -->
+    <div id="m-pilares" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+        Os Dois Pilares da Decisão
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="background:var(--surf2);border-radius:8px;padding:18px;border-top:3px solid var(--blu)">
+          <div style="font-size:12px;font-weight:700;color:var(--blu);margin-bottom:8px">📊 PILAR 1 — TIER DA CIDADE</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:10px">
+            Cada cidade é classificada em um tier de risco com base na sua <strong style="color:var(--text)">taxa histórica de inadimplência</strong>:
+          </p>
+          <div style="background:var(--surf);border-radius:6px;padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);line-height:1.8">
+            Taxa = <span style="color:var(--red)">cancelamentos por inadimplência</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;÷ <span style="color:var(--grn)">total de contratos vendidos</span>
+          </div>
+          <p style="font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.6">
+            O cruzamento é feito entre a <strong style="color:var(--text)">aba Vendas</strong> (todos os contratos) e a <strong style="color:var(--text)">aba Churn</strong> (fonte exclusiva dos cancelamentos). Um contrato só é considerado cancelado por inadimplência se seu ID aparecer na aba Churn com o motivo correspondente. Todas as cidades são exibidas — cidades com menos de 30 contratos recebem badge ⚠ baixo vol. como aviso.
+          </p>
+        </div>
+        <div style="background:var(--surf2);border-radius:8px;padding:18px;border-top:3px solid var(--grn)">
+          <div style="font-size:12px;font-weight:700;color:var(--grn);margin-bottom:8px">🔍 PILAR 2 — SCORE SERASA DO CLIENTE</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:10px">
+            O score Serasa do CPF do cliente (escala 0–1000) é verificado no momento da venda. <strong style="color:var(--text)">Quanto maior o score, menor o risco de inadimplência.</strong>
+          </p>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <div style="width:12px;height:12px;border-radius:2px;background:var(--red);flex-shrink:0"></div>
+              <span>0–400 → risco elevado</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+              <div style="width:12px;height:12px;border-radius:2px;background:var(--yel);flex-shrink:0"></div>
+              <span>400–600 → risco moderado</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:12px;height:12px;border-radius:2px;background:var(--grn);flex-shrink:0"></div>
+              <span>600–1000 → risco baixo</span>
+            </div>
+          </div>
+          <div style="background:var(--surf);border-radius:6px;padding:10px 14px;font-size:11.5px;color:var(--yel);margin-top:10px;line-height:1.6">
+            ⚠ Score 350 é o valor padrão do Serasa para CPFs sem histórico de consulta anterior — chamado de <strong>"crédito invisível"</strong>. Esses clientes devem ser tratados com cautela adicional.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Tiers -->
+    <div id="m-tiers" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span>
+        Como os Tiers de Cidade são Calculados
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:16px">
+        A classificação de cada cidade é feita automaticamente com base na taxa de inadimplência do período selecionado. O cálculo usa todos os contratos do período selecionado. Cidades com poucos contratos (menos de 30) são sinalizadas com badge <strong style="color:var(--muted)">⚠ baixo vol.</strong> para que o gestor interprete a taxa com cautela — amostras pequenas podem gerar taxas extremas não representativas.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:rgba(232,76,61,.08);border:1px solid rgba(232,76,61,.3);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px">🔴 RESTRITO</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--red);margin-bottom:6px">Taxa &gt; 28%</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">Mais de 28 em cada 100 contratos vendidos nessa cidade resultaram em cancelamento por inadimplência. Threshold de aprovação mais elevado.</div>
+        </div>
+        <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--yel);margin-bottom:6px">🟡 MODERADO</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--yel);margin-bottom:6px">Taxa 20–28%</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">Risco intermediário. Threshold acima da regra base da empresa, mas abaixo do nível Restrito.</div>
+        </div>
+        <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.3);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--grn);margin-bottom:6px">🟢 PADRÃO</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--grn);margin-bottom:6px">Taxa &lt; 20%</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">Risco controlado. Mantém a regra base da empresa: score mínimo 400 para aprovação direta.</div>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border-left:3px solid var(--blu);border-radius:0 6px 6px 0;padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--blu)">Importante:</strong> Os tiers são recalculados automaticamente toda vez que o <strong style="color:var(--text)">filtro de período</strong> é alterado ou uma nova planilha é importada. Ao selecionar "Últ. 6m", por exemplo, os tiers refletem apenas os 6 meses mais recentes de dados — permitindo identificar se houve melhora ou piora recente em cada cidade.
+      </div>
+    </div>
+
+    <!-- 4. Thresholds por produto -->
+    <div id="m-produtos" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</span>
+        Thresholds por Produto
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:16px">
+        O score mínimo exigido varia não só pela cidade, mas também pelo <strong style="color:var(--text)">produto desejado</strong>. Produtos com maior risco histórico exigem score mais alto — independentemente do tier da cidade.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div style="background:var(--surf2);border-radius:8px;padding:14px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Risco por produto</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:2">
+            <span style="color:var(--red);font-weight:600">CRÍTICO</span> — Telefonia Fixa<br>
+            <span style="color:var(--org);font-weight:600">ALTO</span> — Telefonia Móvel · TV<br>
+            <span style="color:var(--yel);font-weight:600">MÉDIO</span> — Internet (todos os planos)
+          </div>
+        </div>
+        <div style="background:var(--surf2);border-radius:8px;padding:14px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Lógica dos offsets</div>
+          <p style="font-size:12px;color:var(--muted);line-height:1.7">
+            O threshold é calculado como <strong style="color:var(--text)">Score Base + Offset</strong>. O Score Base (padrão: 400) pode ser ajustado no configurador. O offset varia por produto e tier — Telefonia Fixa em cidade RESTRITO tem offset de +150 pontos, chegando a 550.
+          </p>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Bloqueios adicionais por produto</div>
+        <div style="font-size:12.5px;color:var(--muted);line-height:2">
+          <span style="color:var(--org);font-weight:600">Telefonia Fixa:</span> Pefin ATIVO <em>ou</em> Protesto → Bloqueio absoluto (qualquer um dos dois já veta)<br>
+          <span style="color:var(--org);font-weight:600">Telefonia Móvel e TV em RESTRITO:</span> Pefin + Protesto simultâneos → Bloqueio absoluto<br>
+          <span style="color:var(--grn);font-weight:600">Internet e demais:</span> Sem bloqueio adicional por produto — apenas o bloqueio absoluto geral se aplica
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Tipos de decisão -->
+    <div id="m-decisoes" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">5</span>
+        Os 4 Tipos de Decisão
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);border-left:4px solid var(--grn);border-radius:0 8px 8px 0;padding:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--grn);margin-bottom:6px">✅ APROVADO</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:8px">Score ≥ threshold de aprovação direta para aquela cidade e produto. Vendedor prossegue com a ativação normalmente.</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grn);background:var(--surf2);padding:8px 10px;border-radius:4px">Score ≥ (Base + Offset aprovação)</div>
+        </div>
+        <div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-left:4px solid var(--yel);border-radius:0 8px 8px 0;padding:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--yel);margin-bottom:6px">🟡 ZONA CINZA</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:8px">Score entre o mínimo e o threshold de aprovação direta. <strong style="color:var(--text)">Não é uma negação</strong> — é uma oportunidade controlada. Encaminhar ao gestor comercial. Prazo: até 24h.</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--yel);background:var(--surf2);padding:8px 10px;border-radius:4px">Base + Offset mínimo ≤ Score &lt; Base + Offset aprovação</div>
+        </div>
+        <div style="background:rgba(232,76,61,.08);border:1px solid rgba(232,76,61,.25);border-left:4px solid var(--red);border-radius:0 8px 8px 0;padding:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:6px">❌ NEGADO</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:8px">Score abaixo do mínimo absoluto. Venda não deve prosseguir. Registrar a tentativa no sistema e orientar o cliente a regularizar o CPF junto ao Serasa.</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);background:var(--surf2);padding:8px 10px;border-radius:4px">Score &lt; Base + Offset mínimo</div>
+        </div>
+        <div style="background:rgba(230,126,34,.08);border:1px solid rgba(230,126,34,.25);border-left:4px solid var(--org);border-radius:0 8px 8px 0;padding:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--org);margin-bottom:6px">🔒 BLOQUEIO ABSOLUTO</div>
+          <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:8px">Pefin ATIVO + Protesto em cartório simultaneamente. Venda vetada <strong style="color:var(--text)">independente do score Serasa</strong> — mesmo que o score seja 900.</p>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--org);background:var(--surf2);padding:8px 10px;border-radius:4px">Pefin = SIM AND Protesto = SIM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Filtro de período -->
+    <div id="m-periodo" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">6</span>
+        Filtro de Período Global
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:14px">
+        O seletor <strong style="color:var(--text)">De / Até</strong> no topo da ferramenta é <strong style="color:var(--text)">global</strong> — afeta simultaneamente o Crivo por Cidade, o Filtro por Produto, o Simulador e a Evolução Anual.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div style="background:var(--surf2);border-radius:8px;padding:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">O que muda ao alterar o período</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.9">
+            ▸ Tiers das cidades são recalculados<br>
+            ▸ Thresholds de score atualizados<br>
+            ▸ Seletor de cidades no simulador atualizado<br>
+            ▸ Evolução Anual filtra os cohorts do período<br>
+            ▸ Barra de resumo mostra totais do período
+          </div>
+        </div>
+        <div style="background:var(--surf2);border-radius:8px;padding:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Casos de uso práticos</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.9">
+            ▸ <strong style="color:var(--text)">Últ. 6m</strong> → crivo calibrado com dados recentes<br>
+            ▸ <strong style="color:var(--text)">Últ. 3m</strong> → reflexo de ações tomadas recentemente<br>
+            ▸ <strong style="color:var(--text)">Jan–Abr/2026</strong> → comparar antes/depois de uma ação<br>
+            ▸ <strong style="color:var(--text)">2025 completo</strong> → visão anual consolidada
+          </div>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border-left:3px solid var(--yel);border-radius:0 6px 6px 0;padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--yel)">Recomendação:</strong> Para uso operacional diário, use <strong style="color:var(--text)">"Últ. 6m"</strong> — captura tendência recente com volume suficiente. Para análises estratégicas, use <strong style="color:var(--text)">"Tudo"</strong> para ter a base histórica completa.
+      </div>
+    </div>
+
+    <!-- 7. Maturação -->
+    <div id="m-maturacao" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">7</span>
+        Maturação dos Cohorts
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:14px">
+        Na aba <strong style="color:var(--text)">Evolução Anual</strong>, cada mês de ativação é um "cohort". O badge de maturação indica há quantos meses aquele cohort foi ativado — e portanto quão confiável é a sua taxa de inadimplência.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:var(--surf2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">⚠️</div>
+          <span style="background:rgba(232,76,61,.15);color:var(--red);font-size:11px;padding:2px 8px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-weight:600">⚠Nm</span>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">0–2 meses<br><strong style="color:var(--text)">Taxa subestimada</strong><br>A maioria dos inadimplentes ainda não teve tempo de atrasar 60 dias</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">🕐</div>
+          <span style="background:rgba(245,166,35,.15);color:var(--yel);font-size:11px;padding:2px 8px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-weight:600">~Nm</span>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">3–5 meses<br><strong style="color:var(--text)">Dado parcial</strong><br>Taxa crescerá conforme mais cancelamentos forem registrados</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">✅</div>
+          <span style="background:var(--surf);font-size:11px;padding:2px 8px;border-radius:3px;font-family:'IBM Plex Mono',monospace;color:var(--muted)">sem badge</span>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">6+ meses<br><strong style="color:var(--text)">Dado confiável</strong><br>Tempo suficiente para que os inadimplentes já tenham sido registrados no Churn</div>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border-left:3px solid var(--blu);border-radius:0 6px 6px 0;padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--blu)">Por que 60 dias?</strong> O motivo de cancelamento mais comum é "Vencido Após 60 Dias" — o processo de cobrança e baixa no sistema leva em média dois meses após o primeiro atraso. Portanto, cohorts com menos de 2 meses de maturação praticamente não terão inadimplência registrada ainda.
+      </div>
+    </div>
+
+    <!-- 8. Atualização mensal -->
+    <div id="m-atualizacao" style="background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span style="background:var(--red);color:#fff;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">8</span>
+        Ciclo de Atualização
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:16px">
+        A ferramenta funciona 100% no navegador — sem servidor, sem banco de dados. Os dados são carregados das planilhas e processados localmente. Para manter o crivo atualizado, siga o ciclo abaixo:
+      </p>
+      <div style="display:flex;gap:0;margin-bottom:16px">
+        <div style="flex:1;background:var(--surf2);padding:14px;border-radius:8px 0 0 8px;border-right:1px solid var(--border);position:relative">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--red);margin-bottom:4px">01</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:4px">Extrair planilhas</div>
+          <div style="font-size:11px;color:var(--muted)">Exportar do sistema a Força de Vendas atualizada (abas Vendas e Churn no mesmo arquivo)</div>
+        </div>
+        <div style="flex:1;background:var(--surf2);padding:14px;border-right:1px solid var(--border);position:relative">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--yel);margin-bottom:4px">02</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:4px">Importar na ferramenta</div>
+          <div style="font-size:11px;color:var(--muted)">Clicar em "Atualizar Base" → carregar a Força de Vendas → clicar em Recalcular Crivo</div>
+        </div>
+        <div style="flex:1;background:var(--surf2);padding:14px;border-right:1px solid var(--border);position:relative">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--blu);margin-bottom:4px">03</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:4px">Verificar os tiers</div>
+          <div style="font-size:11px;color:var(--muted)">Conferir na aba Crivo por Cidade se houve mudanças de tier e ajustar o período se necessário</div>
+        </div>
+        <div style="flex:1;background:var(--surf2);padding:14px;border-radius:0 8px 8px 0">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--grn);margin-bottom:4px">04</div>
+          <div style="font-size:11.5px;font-weight:600;color:var(--text);margin-bottom:4px">Salvar e distribuir</div>
+          <div style="font-size:11px;color:var(--muted)">Clicar em "Salvar HTML" para gerar o arquivo com dados embutidos e distribuir ao comercial</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:600;color:var(--grn);margin-bottom:6px">✅ O arquivo HTML salvo contém</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8">
+            ▸ Todos os dados da importação embutidos<br>
+            ▸ Funciona offline, sem internet<br>
+            ▸ Pode ser aberto em qualquer navegador<br>
+            ▸ Simulador pronto para uso imediato
+          </div>
+        </div>
+        <div style="background:rgba(232,76,61,.08);border:1px solid rgba(232,76,61,.2);border-radius:8px;padding:14px">
+          <div style="font-size:12px;font-weight:600;color:var(--red);margin-bottom:6px">⚠ Atenção</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8">
+            ▸ Sem salvar, ao fechar o navegador os dados importados são perdidos<br>
+            ▸ O arquivo base sempre volta para os dados de Abr/2026<br>
+            ▸ Sempre usar o último HTML salvo como ponto de partida
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé do manual -->
+    <div style="text-align:center;padding:20px;color:var(--muted);font-size:11.5px;line-height:1.8">
+      Crivo de Crédito TurboNet · Documentação interna · Calibrado com dados Serasa Abr/2026<br>
+      Para dúvidas sobre a metodologia, contate a Controladoria.
+    </div>
+
+  </div>
+
 </div>
 
 <footer>
   <div>TURBONET TELECOM · Crivo de Crédito v2 · Metodologia: Taxa Real por Cidade</div>
-  <div id="footerMeta">Base: junho de 2026 · 19.187 contratos · Uso interno</div>
+  <div id="footerMeta">Base: junho de 2026 · 19.332 contratos · Uso interno</div>
 </footer>
 
 <script>
@@ -812,213 +1375,339 @@ const PRODUTOS_DEF = [
 
 
 // City × Product breakdown data (from Força de Vendas analysis)
-const CIDADE_PRODUTO = {
-  'Altair':              {'Internet':{total:166,inadim:18,taxa:10.8},'TV':{total:38,inadim:1,taxa:2.6}},
-  'Barretos':            {'Internet':{total:3043,inadim:442,taxa:14.5},'TV':{total:462,inadim:52,taxa:11.3},'Telefonia Móvel':{total:725,inadim:11,taxa:1.5},'Telefonia Fixa':{total:43,inadim:5,taxa:11.6}},
-  'Bebedouro':           {'Internet':{total:1992,inadim:215,taxa:10.8},'TV':{total:330,inadim:34,taxa:10.3},'Telefonia Móvel':{total:420,inadim:1,taxa:0.2},'Telefonia Fixa':{total:40,inadim:0,taxa:0.0}},
-  'Cajobi':              {'Internet':{total:606,inadim:32,taxa:5.3},'TV':{total:206,inadim:8,taxa:3.9},'Telefonia Móvel':{total:194,inadim:2,taxa:1.0},'Telefonia Fixa':{total:12,inadim:0,taxa:0.0}},
-  'Colômbia':            {'Internet':{total:453,inadim:67,taxa:14.8},'TV':{total:99,inadim:14,taxa:14.1},'Telefonia Móvel':{total:61,inadim:0,taxa:0.0},'Telefonia Fixa':{total:11,inadim:0,taxa:0.0}},
-  'Embaúba':             {'Internet':{total:104,inadim:6,taxa:5.8},'TV':{total:24,inadim:1,taxa:4.2},'Telefonia Móvel':{total:25,inadim:0,taxa:0.0}},
-  'Guaraci':             {'Internet':{total:638,inadim:61,taxa:9.6},'TV':{total:135,inadim:10,taxa:7.4},'Telefonia Móvel':{total:59,inadim:1,taxa:1.7}},
-  'Monte Azul Paulista': {'Internet':{total:633,inadim:57,taxa:9.0},'TV':{total:129,inadim:9,taxa:7.0},'Telefonia Móvel':{total:95,inadim:1,taxa:1.1},'Telefonia Fixa':{total:21,inadim:0,taxa:0.0}},
-  'Novais':              {'Internet':{total:234,inadim:27,taxa:11.5},'TV':{total:48,inadim:3,taxa:6.2},'Telefonia Móvel':{total:36,inadim:2,taxa:5.6}},
-  'Olímpia':             {'Internet':{total:2283,inadim:190,taxa:8.3},'TV':{total:318,inadim:20,taxa:6.3},'Telefonia Móvel':{total:467,inadim:1,taxa:0.2},'Telefonia Fixa':{total:77,inadim:0,taxa:0.0}},
-  'Onda Verde':          {'Internet':{total:122,inadim:23,taxa:18.9},'TV':{total:19,inadim:1,taxa:5.3},'Telefonia Móvel':{total:11,inadim:0,taxa:0.0}},
-  'Palmares Paulista':   {'Internet':{total:110,inadim:33,taxa:30.0},'TV':{total:28,inadim:5,taxa:17.9},'Telefonia Móvel':{total:18,inadim:0,taxa:0.0}},
-  'Paraíso':             {'Internet':{total:162,inadim:35,taxa:21.6},'TV':{total:63,inadim:6,taxa:9.5},'Telefonia Móvel':{total:52,inadim:0,taxa:0.0}},
-  'Pirangi':             {'Internet':{total:285,inadim:35,taxa:12.3},'TV':{total:43,inadim:4,taxa:9.3},'Telefonia Móvel':{total:43,inadim:0,taxa:0.0}},
-  'Severínia':           {'Internet':{total:763,inadim:85,taxa:11.1},'TV':{total:188,inadim:20,taxa:10.6},'Telefonia Móvel':{total:172,inadim:0,taxa:0.0}},
-  'Tabapuã':             {'Internet':{total:466,inadim:51,taxa:10.9},'TV':{total:104,inadim:11,taxa:10.6},'Telefonia Móvel':{total:67,inadim:0,taxa:0.0},'Telefonia Fixa':{total:11,inadim:1,taxa:9.1}},
-  'Taiaçu':              {'Internet':{total:162,inadim:26,taxa:16.0},'TV':{total:31,inadim:1,taxa:3.2},'Telefonia Móvel':{total:29,inadim:2,taxa:6.9}},
-  'Taiúva':              {'Internet':{total:132,inadim:17,taxa:12.9},'TV':{total:39,inadim:3,taxa:7.7},'Telefonia Móvel':{total:28,inadim:0,taxa:0.0}},
-  'Taquaral':            {'Internet':{total:86,inadim:7,taxa:8.1},'TV':{total:20,inadim:0,taxa:0.0},'Telefonia Móvel':{total:26,inadim:0,taxa:0.0}},
-  'Vista Alegre Do Alto':{'Internet':{total:249,inadim:22,taxa:8.8},'TV':{total:34,inadim:3,taxa:8.8},'Telefonia Móvel':{total:74,inadim:0,taxa:0.0}},
-};
+const CIDADE_PRODUTO = {"Bebedouro":{"Internet":{"total":1992,"inadim":375,"taxa":18.8},"TV":{"total":330,"inadim":77,"taxa":23.3},"Telefonia Fixa":{"total":40,"inadim":1,"taxa":2.5},"Telefonia Móvel":{"total":420,"inadim":81,"taxa":19.3}},"Guaraci":{"Internet":{"total":638,"inadim":83,"taxa":13},"TV":{"total":135,"inadim":11,"taxa":8.1},"Telefonia Fixa":{"total":6,"inadim":1,"taxa":16.7},"Telefonia Móvel":{"total":59,"inadim":4,"taxa":6.8}},"Olímpia":{"Internet":{"total":2286,"inadim":319,"taxa":14},"TV":{"total":318,"inadim":42,"taxa":13.2},"Telefonia Fixa":{"total":77,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":467,"inadim":32,"taxa":6.9}},"Barretos":{"Internet":{"total":3043,"inadim":784,"taxa":25.8},"TV":{"total":462,"inadim":131,"taxa":28.4},"Telefonia Fixa":{"total":43,"inadim":11,"taxa":25.6},"Telefonia Móvel":{"total":725,"inadim":182,"taxa":25.1}},"Severínia":{"Internet":{"total":763,"inadim":152,"taxa":19.9},"TV":{"total":188,"inadim":33,"taxa":17.6},"Telefonia Fixa":{"total":9,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":172,"inadim":37,"taxa":21.5}},"Cajobi":{"Internet":{"total":606,"inadim":66,"taxa":10.9},"TV":{"total":206,"inadim":23,"taxa":11.2},"Telefonia Fixa":{"total":12,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":194,"inadim":11,"taxa":5.7}},"Tabapuã":{"Internet":{"total":466,"inadim":71,"taxa":15.2},"TV":{"total":104,"inadim":13,"taxa":12.5},"Telefonia Fixa":{"total":11,"inadim":1,"taxa":9.1},"Telefonia Móvel":{"total":67,"inadim":10,"taxa":14.9}},"Altair":{"Internet":{"total":166,"inadim":28,"taxa":16.9},"TV":{"total":38,"inadim":8,"taxa":21.1},"Telefonia Fixa":{"total":1,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":8,"inadim":2,"taxa":25}},"Novais":{"Internet":{"total":234,"inadim":43,"taxa":18.4},"TV":{"total":48,"inadim":4,"taxa":8.3},"Telefonia Fixa":{"total":4,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":36,"inadim":4,"taxa":11.1}},"Catanduva":{"TV":{"total":2,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":7,"inadim":0,"taxa":0}},"Pirangi":{"Internet":{"total":285,"inadim":63,"taxa":22.1},"TV":{"total":43,"inadim":5,"taxa":11.6},"Telefonia Fixa":{"total":2,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":43,"inadim":2,"taxa":4.7}},"Vista Alegre Do Alto":{"Internet":{"total":249,"inadim":42,"taxa":16.9},"TV":{"total":34,"inadim":7,"taxa":20.6},"Telefonia Fixa":{"total":2,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":74,"inadim":2,"taxa":2.7}},"Embaúba":{"Internet":{"total":104,"inadim":13,"taxa":12.5},"TV":{"total":24,"inadim":1,"taxa":4.2},"Telefonia Móvel":{"total":25,"inadim":3,"taxa":12}},"Taquaral":{"Internet":{"total":86,"inadim":12,"taxa":14},"TV":{"total":20,"inadim":2,"taxa":10},"Telefonia Móvel":{"total":26,"inadim":7,"taxa":26.9}},"Monte Azul Paulista":{"Internet":{"total":633,"inadim":113,"taxa":17.9},"TV":{"total":129,"inadim":21,"taxa":16.3},"Telefonia Fixa":{"total":21,"inadim":1,"taxa":4.8},"Telefonia Móvel":{"total":95,"inadim":6,"taxa":6.3}},"Colômbia":{"Internet":{"total":453,"inadim":97,"taxa":21.4},"TV":{"total":99,"inadim":24,"taxa":24.2},"Telefonia Fixa":{"total":11,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":61,"inadim":8,"taxa":13.1}},"Terra Roxa":{},"Viradouro":{"Telefonia Móvel":{"total":4,"inadim":1,"taxa":25}},"Taiaçu":{"Internet":{"total":162,"inadim":44,"taxa":27.2},"TV":{"total":31,"inadim":8,"taxa":25.8},"Telefonia Móvel":{"total":29,"inadim":5,"taxa":17.2}},"Palmares Paulista":{"Internet":{"total":110,"inadim":40,"taxa":36.4},"TV":{"total":28,"inadim":6,"taxa":21.4},"Telefonia Fixa":{"total":1,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":18,"inadim":5,"taxa":27.8}},"Jaborandi":{"Telefonia Móvel":{"total":2,"inadim":2,"taxa":100}},"Paraíso":{"Internet":{"total":162,"inadim":45,"taxa":27.8},"TV":{"total":63,"inadim":9,"taxa":14.3},"Telefonia Móvel":{"total":52,"inadim":2,"taxa":3.8}},"Nova Granada":{},"Taiúva":{"Internet":{"total":132,"inadim":26,"taxa":19.7},"TV":{"total":39,"inadim":4,"taxa":10.3},"Telefonia Fixa":{"total":1,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":28,"inadim":0,"taxa":0}},"Onda Verde":{"Internet":{"total":122,"inadim":29,"taxa":23.8},"TV":{"total":19,"inadim":1,"taxa":5.3},"Telefonia Fixa":{"total":2,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":11,"inadim":0,"taxa":0}},"Fernando Prestes":{},"Serra Azul":{},"Ribeiro Dos Santos":{"Internet":{"total":6,"inadim":0,"taxa":0}},"Monte Verde Paulista":{"Internet":{"total":4,"inadim":0,"taxa":0}},"Monte Verde":{"Internet":{"total":3,"inadim":1,"taxa":33.3}},"Olimpia":{},"Piracicaba":{"Telefonia Móvel":{"total":2,"inadim":0,"taxa":0}},"Marapoama":{},"São José Do Rio Preto":{"Telefonia Móvel":{"total":7,"inadim":4,"taxa":57.1}},"Suinana":{},"Marcondésia":{"Internet":{"total":2,"inadim":0,"taxa":0}},"Laranjeiras":{"Internet":{"total":3,"inadim":0,"taxa":0}},"Guapiaçu":{"Internet":{"total":2,"inadim":0,"taxa":0},"Telefonia Móvel":{"total":3,"inadim":2,"taxa":66.7}},"Fronteira":{},"Frutal":{"Telefonia Móvel":{"total":12,"inadim":0,"taxa":0}},"Valparaíso":{},"Bady Bassitt":{},"Planura":{},"Monte Azul":{},"Colina":{},"Mirassol":{}};
+  
+
+// Evolução ano a ano (cidade × produto × ano)
+const EVOLUCAO = {"Altair":{"Internet":{"2024-11":{"v":16,"i":3},"2024-12":{"v":12,"i":3},"2025-01":{"v":15,"i":4},"2025-02":{"v":12,"i":2},"2025-03":{"v":14,"i":4},"2025-04":{"v":12,"i":1},"2025-05":{"v":5,"i":1},"2025-06":{"v":7,"i":3},"2025-07":{"v":5,"i":0},"2025-08":{"v":7,"i":0},"2025-09":{"v":13,"i":4},"2025-10":{"v":8,"i":0},"2025-11":{"v":4,"i":0},"2025-12":{"v":4,"i":1},"2026-01":{"v":6,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":9,"i":2},"2026-04":{"v":5,"i":0},"2026-05":{"v":4,"i":0},"2026-06":{"v":5,"i":0}},"TV":{"2025-02":{"v":1,"i":0},"2025-03":{"v":2,"i":1},"2025-04":{"v":6,"i":2},"2025-05":{"v":6,"i":0},"2025-06":{"v":2,"i":1},"2025-07":{"v":1,"i":0},"2025-08":{"v":2,"i":1},"2025-09":{"v":2,"i":0},"2025-12":{"v":2,"i":2},"2026-01":{"v":4,"i":0},"2026-02":{"v":1,"i":0},"2026-03":{"v":6,"i":1},"2026-04":{"v":1,"i":0},"2026-05":{"v":1,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Fixa":{"2025-12":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":1,"i":0},"2025-09":{"v":1,"i":0},"2025-10":{"v":3,"i":2},"2025-11":{"v":2,"i":0},"2025-12":{"v":1,"i":0}}},"Bady Bassitt":{"Telefonia Móvel":{"2026-03":{"v":1,"i":0}}},"Barretos":{"Internet":{"2024-11":{"v":200,"i":66},"2024-12":{"v":273,"i":106},"2025-01":{"v":298,"i":103},"2025-02":{"v":265,"i":84},"2025-03":{"v":194,"i":72},"2025-04":{"v":171,"i":56},"2025-05":{"v":102,"i":42},"2025-06":{"v":88,"i":13},"2025-07":{"v":109,"i":22},"2025-08":{"v":102,"i":30},"2025-09":{"v":141,"i":48},"2025-10":{"v":132,"i":39},"2025-11":{"v":130,"i":46},"2025-12":{"v":93,"i":28},"2026-01":{"v":118,"i":18},"2026-02":{"v":84,"i":8},"2026-03":{"v":145,"i":3},"2026-04":{"v":154,"i":0},"2026-05":{"v":186,"i":0},"2026-06":{"v":58,"i":0}},"TV":{"2025-02":{"v":51,"i":19},"2025-03":{"v":49,"i":17},"2025-04":{"v":31,"i":14},"2025-05":{"v":19,"i":9},"2025-06":{"v":20,"i":4},"2025-07":{"v":23,"i":4},"2025-08":{"v":12,"i":3},"2025-09":{"v":40,"i":18},"2025-10":{"v":36,"i":14},"2025-11":{"v":19,"i":12},"2025-12":{"v":15,"i":7},"2026-01":{"v":16,"i":7},"2026-02":{"v":15,"i":3},"2026-03":{"v":39,"i":0},"2026-04":{"v":29,"i":0},"2026-05":{"v":42,"i":0},"2026-06":{"v":6,"i":0}},"Telefonia Fixa":{"2025-04":{"v":1,"i":0},"2025-05":{"v":6,"i":3},"2025-06":{"v":5,"i":2},"2025-07":{"v":4,"i":1},"2025-08":{"v":3,"i":1},"2025-09":{"v":5,"i":2},"2025-10":{"v":3,"i":0},"2025-11":{"v":2,"i":0},"2025-12":{"v":4,"i":0},"2026-01":{"v":2,"i":1},"2026-02":{"v":3,"i":1},"2026-03":{"v":1,"i":0},"2026-04":{"v":3,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":49,"i":19},"2025-09":{"v":47,"i":20},"2025-10":{"v":85,"i":35},"2025-11":{"v":135,"i":63},"2025-12":{"v":62,"i":30},"2026-01":{"v":35,"i":11},"2026-02":{"v":25,"i":4},"2026-03":{"v":55,"i":0},"2026-04":{"v":66,"i":0},"2026-05":{"v":135,"i":0},"2026-06":{"v":31,"i":0}}},"Bebedouro":{"Internet":{"2024-11":{"v":152,"i":48},"2024-12":{"v":153,"i":42},"2025-01":{"v":118,"i":38},"2025-02":{"v":114,"i":28},"2025-03":{"v":106,"i":29},"2025-04":{"v":116,"i":43},"2025-05":{"v":93,"i":22},"2025-06":{"v":84,"i":12},"2025-07":{"v":85,"i":18},"2025-08":{"v":84,"i":15},"2025-09":{"v":100,"i":15},"2025-10":{"v":105,"i":23},"2025-11":{"v":93,"i":17},"2025-12":{"v":92,"i":10},"2026-01":{"v":105,"i":7},"2026-02":{"v":70,"i":5},"2026-03":{"v":96,"i":3},"2026-04":{"v":89,"i":0},"2026-05":{"v":87,"i":0},"2026-06":{"v":50,"i":0}},"TV":{"2025-02":{"v":24,"i":9},"2025-03":{"v":22,"i":3},"2025-04":{"v":56,"i":23},"2025-05":{"v":25,"i":6},"2025-06":{"v":13,"i":7},"2025-07":{"v":15,"i":4},"2025-08":{"v":23,"i":6},"2025-09":{"v":15,"i":2},"2025-10":{"v":9,"i":3},"2025-11":{"v":16,"i":3},"2025-12":{"v":15,"i":3},"2026-01":{"v":23,"i":3},"2026-02":{"v":9,"i":2},"2026-03":{"v":25,"i":3},"2026-04":{"v":22,"i":0},"2026-05":{"v":10,"i":0},"2026-06":{"v":8,"i":0}},"Telefonia Fixa":{"2025-05":{"v":2,"i":0},"2025-06":{"v":3,"i":1},"2025-07":{"v":3,"i":0},"2025-08":{"v":3,"i":0},"2025-09":{"v":1,"i":0},"2025-10":{"v":4,"i":0},"2025-12":{"v":2,"i":0},"2026-01":{"v":13,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":2,"i":0},"2026-05":{"v":3,"i":0}},"Telefonia Móvel":{"2025-08":{"v":35,"i":3},"2025-09":{"v":26,"i":5},"2025-10":{"v":59,"i":15},"2025-11":{"v":81,"i":28},"2025-12":{"v":57,"i":22},"2026-01":{"v":27,"i":6},"2026-02":{"v":15,"i":0},"2026-03":{"v":31,"i":2},"2026-04":{"v":38,"i":0},"2026-05":{"v":34,"i":0},"2026-06":{"v":17,"i":0}}},"Cajobi":{"Internet":{"2024-11":{"v":48,"i":7},"2024-12":{"v":43,"i":5},"2025-01":{"v":66,"i":9},"2025-02":{"v":28,"i":4},"2025-03":{"v":31,"i":8},"2025-04":{"v":43,"i":11},"2025-05":{"v":21,"i":4},"2025-06":{"v":27,"i":1},"2025-07":{"v":28,"i":3},"2025-08":{"v":26,"i":2},"2025-09":{"v":29,"i":3},"2025-10":{"v":30,"i":3},"2025-11":{"v":27,"i":2},"2025-12":{"v":24,"i":1},"2026-01":{"v":25,"i":1},"2026-02":{"v":22,"i":1},"2026-03":{"v":23,"i":1},"2026-04":{"v":22,"i":0},"2026-05":{"v":23,"i":0},"2026-06":{"v":20,"i":0}},"TV":{"2025-02":{"v":14,"i":4},"2025-03":{"v":12,"i":0},"2025-04":{"v":27,"i":4},"2025-05":{"v":14,"i":3},"2025-06":{"v":23,"i":3},"2025-07":{"v":11,"i":3},"2025-08":{"v":19,"i":1},"2025-09":{"v":16,"i":3},"2025-10":{"v":13,"i":1},"2025-11":{"v":8,"i":0},"2025-12":{"v":5,"i":0},"2026-01":{"v":8,"i":0},"2026-02":{"v":7,"i":1},"2026-03":{"v":13,"i":0},"2026-04":{"v":8,"i":0},"2026-05":{"v":3,"i":0},"2026-06":{"v":5,"i":0}},"Telefonia Fixa":{"2025-03":{"v":1,"i":0},"2025-06":{"v":1,"i":0},"2025-09":{"v":1,"i":0},"2025-11":{"v":3,"i":0},"2025-12":{"v":2,"i":0},"2026-03":{"v":1,"i":0},"2026-05":{"v":3,"i":0}},"Telefonia Móvel":{"2025-07":{"v":3,"i":0},"2025-08":{"v":76,"i":4},"2025-09":{"v":26,"i":2},"2025-10":{"v":16,"i":1},"2025-11":{"v":17,"i":2},"2025-12":{"v":9,"i":0},"2026-01":{"v":9,"i":2},"2026-02":{"v":12,"i":0},"2026-03":{"v":12,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":9,"i":0},"2026-06":{"v":1,"i":0}}},"Catanduva":{"TV":{"2025-11":{"v":2,"i":0}},"Telefonia Móvel":{"2025-10":{"v":1,"i":0},"2026-01":{"v":1,"i":0},"2026-05":{"v":5,"i":0}}},"Colina":{"Telefonia Móvel":{"2026-05":{"v":1,"i":0}}},"Colômbia":{"Internet":{"2024-11":{"v":51,"i":16},"2024-12":{"v":40,"i":13},"2025-01":{"v":55,"i":15},"2025-02":{"v":27,"i":10},"2025-03":{"v":30,"i":12},"2025-04":{"v":21,"i":6},"2025-05":{"v":20,"i":7},"2025-06":{"v":16,"i":1},"2025-07":{"v":20,"i":2},"2025-08":{"v":16,"i":7},"2025-09":{"v":13,"i":2},"2025-10":{"v":15,"i":1},"2025-11":{"v":13,"i":1},"2025-12":{"v":14,"i":2},"2026-01":{"v":16,"i":2},"2026-02":{"v":25,"i":0},"2026-03":{"v":17,"i":0},"2026-04":{"v":15,"i":0},"2026-05":{"v":20,"i":0},"2026-06":{"v":9,"i":0}},"TV":{"2025-02":{"v":7,"i":1},"2025-03":{"v":15,"i":9},"2025-04":{"v":10,"i":6},"2025-05":{"v":6,"i":2},"2025-06":{"v":8,"i":1},"2025-07":{"v":8,"i":0},"2025-08":{"v":5,"i":3},"2025-09":{"v":2,"i":0},"2025-10":{"v":3,"i":1},"2025-11":{"v":4,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":10,"i":1},"2026-02":{"v":5,"i":0},"2026-03":{"v":4,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":7,"i":0}},"Telefonia Fixa":{"2025-06":{"v":1,"i":0},"2025-07":{"v":1,"i":0},"2025-11":{"v":4,"i":0},"2026-02":{"v":2,"i":0},"2026-04":{"v":2,"i":0},"2026-05":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":6,"i":0},"2025-09":{"v":2,"i":0},"2025-10":{"v":2,"i":1},"2025-11":{"v":4,"i":1},"2025-12":{"v":10,"i":3},"2026-01":{"v":12,"i":3},"2026-02":{"v":6,"i":0},"2026-03":{"v":5,"i":0},"2026-04":{"v":5,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":1,"i":0}}},"Embaúba":{"Internet":{"2024-11":{"v":8,"i":3},"2024-12":{"v":7,"i":1},"2025-01":{"v":9,"i":1},"2025-02":{"v":10,"i":4},"2025-03":{"v":5,"i":1},"2025-04":{"v":3,"i":0},"2025-05":{"v":4,"i":0},"2025-06":{"v":2,"i":0},"2025-07":{"v":13,"i":1},"2025-08":{"v":6,"i":1},"2025-09":{"v":1,"i":0},"2025-10":{"v":4,"i":1},"2025-11":{"v":5,"i":0},"2025-12":{"v":3,"i":0},"2026-01":{"v":4,"i":0},"2026-02":{"v":4,"i":0},"2026-03":{"v":6,"i":0},"2026-04":{"v":2,"i":0},"2026-05":{"v":3,"i":0},"2026-06":{"v":5,"i":0}},"TV":{"2025-02":{"v":2,"i":1},"2025-05":{"v":4,"i":0},"2025-06":{"v":3,"i":0},"2025-07":{"v":4,"i":0},"2025-08":{"v":1,"i":0},"2025-10":{"v":1,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":1,"i":0},"2026-02":{"v":2,"i":0},"2026-04":{"v":1,"i":0},"2026-05":{"v":2,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Móvel":{"2025-08":{"v":2,"i":0},"2025-09":{"v":3,"i":0},"2025-10":{"v":1,"i":0},"2025-11":{"v":7,"i":2},"2026-02":{"v":4,"i":1},"2026-03":{"v":6,"i":0},"2026-04":{"v":1,"i":0},"2026-05":{"v":1,"i":0}}},"Fernando Prestes":{"Telefonia Móvel":{"2025-11":{"v":1,"i":1}}},"Fronteira":{"Telefonia Móvel":{"2026-01":{"v":1,"i":0}}},"Frutal":{"Telefonia Móvel":{"2026-01":{"v":1,"i":0},"2026-02":{"v":8,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":2,"i":0}}},"Guapiaçu":{"Internet":{"2024-12":{"v":2,"i":0}},"Telefonia Móvel":{"2026-01":{"v":3,"i":2}}},"Guaraci":{"Internet":{"2024-11":{"v":58,"i":14},"2024-12":{"v":41,"i":6},"2025-01":{"v":69,"i":12},"2025-02":{"v":34,"i":6},"2025-03":{"v":44,"i":9},"2025-04":{"v":51,"i":11},"2025-05":{"v":43,"i":6},"2025-06":{"v":19,"i":4},"2025-07":{"v":26,"i":4},"2025-08":{"v":18,"i":1},"2025-09":{"v":29,"i":3},"2025-10":{"v":19,"i":0},"2025-11":{"v":21,"i":1},"2025-12":{"v":29,"i":0},"2026-01":{"v":30,"i":4},"2026-02":{"v":26,"i":2},"2026-03":{"v":23,"i":0},"2026-04":{"v":27,"i":0},"2026-05":{"v":16,"i":0},"2026-06":{"v":15,"i":0}},"TV":{"2025-02":{"v":14,"i":2},"2025-03":{"v":17,"i":0},"2025-04":{"v":10,"i":6},"2025-05":{"v":13,"i":1},"2025-06":{"v":11,"i":1},"2025-07":{"v":9,"i":1},"2025-08":{"v":6,"i":0},"2025-09":{"v":4,"i":0},"2025-10":{"v":7,"i":0},"2025-11":{"v":4,"i":0},"2025-12":{"v":5,"i":0},"2026-01":{"v":7,"i":0},"2026-02":{"v":5,"i":0},"2026-03":{"v":5,"i":0},"2026-04":{"v":8,"i":0},"2026-05":{"v":4,"i":0},"2026-06":{"v":6,"i":0}},"Telefonia Fixa":{"2025-07":{"v":1,"i":0},"2025-09":{"v":1,"i":1},"2025-10":{"v":1,"i":0},"2025-11":{"v":1,"i":0},"2026-02":{"v":1,"i":0},"2026-04":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":8,"i":1},"2025-09":{"v":7,"i":0},"2025-10":{"v":8,"i":2},"2025-11":{"v":7,"i":0},"2025-12":{"v":3,"i":0},"2026-01":{"v":14,"i":1},"2026-02":{"v":2,"i":0},"2026-03":{"v":2,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":3,"i":0},"2026-06":{"v":1,"i":0}}},"Jaborandi":{"Telefonia Móvel":{"2025-11":{"v":2,"i":2}}},"Laranjeiras":{"Internet":{"2024-11":{"v":2,"i":0},"2026-06":{"v":1,"i":0}}},"Marapoama":{"Telefonia Móvel":{"2025-09":{"v":1,"i":0}}},"Marcondésia":{"Internet":{"2024-11":{"v":1,"i":0},"2026-02":{"v":1,"i":0}}},"Mirassol":{"Telefonia Móvel":{"2026-05":{"v":1,"i":0}}},"Monte Azul":{"TV":{"2026-05":{"v":1,"i":0}}},"Monte Azul Paulista":{"Internet":{"2024-11":{"v":48,"i":11},"2024-12":{"v":40,"i":6},"2025-01":{"v":51,"i":18},"2025-02":{"v":42,"i":15},"2025-03":{"v":29,"i":9},"2025-04":{"v":27,"i":8},"2025-05":{"v":33,"i":8},"2025-06":{"v":22,"i":3},"2025-07":{"v":28,"i":1},"2025-08":{"v":56,"i":10},"2025-09":{"v":26,"i":5},"2025-10":{"v":37,"i":5},"2025-11":{"v":24,"i":7},"2025-12":{"v":32,"i":2},"2026-01":{"v":26,"i":3},"2026-02":{"v":25,"i":2},"2026-03":{"v":32,"i":0},"2026-04":{"v":18,"i":0},"2026-05":{"v":28,"i":0},"2026-06":{"v":9,"i":0}},"TV":{"2025-02":{"v":21,"i":7},"2025-03":{"v":10,"i":3},"2025-04":{"v":11,"i":1},"2025-05":{"v":9,"i":3},"2025-06":{"v":9,"i":2},"2025-07":{"v":9,"i":1},"2025-08":{"v":4,"i":0},"2025-09":{"v":7,"i":1},"2025-10":{"v":6,"i":1},"2025-11":{"v":3,"i":1},"2025-12":{"v":8,"i":0},"2026-01":{"v":7,"i":1},"2026-02":{"v":4,"i":0},"2026-03":{"v":5,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":10,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Fixa":{"2025-07":{"v":1,"i":0},"2025-08":{"v":1,"i":1},"2025-09":{"v":2,"i":0},"2025-10":{"v":1,"i":0},"2025-12":{"v":2,"i":0},"2026-01":{"v":2,"i":0},"2026-02":{"v":1,"i":0},"2026-03":{"v":6,"i":0},"2026-04":{"v":3,"i":0},"2026-05":{"v":2,"i":0}},"Telefonia Móvel":{"2025-08":{"v":14,"i":4},"2025-09":{"v":20,"i":1},"2025-10":{"v":30,"i":0},"2025-11":{"v":2,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":4,"i":1},"2026-02":{"v":3,"i":0},"2026-03":{"v":6,"i":0},"2026-04":{"v":6,"i":0},"2026-05":{"v":5,"i":0},"2026-06":{"v":4,"i":0}}},"Monte Verde":{"Internet":{"2024-12":{"v":2,"i":1},"2025-03":{"v":1,"i":0}}},"Monte Verde Paulista":{"Internet":{"2024-11":{"v":1,"i":0},"2024-12":{"v":1,"i":0},"2025-02":{"v":1,"i":0},"2026-01":{"v":1,"i":0}}},"Nova Granada":{"Telefonia Móvel":{"2025-11":{"v":1,"i":0}}},"Novais":{"Internet":{"2024-11":{"v":16,"i":2},"2024-12":{"v":10,"i":3},"2025-01":{"v":31,"i":13},"2025-02":{"v":10,"i":4},"2025-03":{"v":11,"i":4},"2025-04":{"v":17,"i":4},"2025-05":{"v":11,"i":1},"2025-06":{"v":5,"i":1},"2025-07":{"v":6,"i":3},"2025-08":{"v":7,"i":2},"2025-09":{"v":17,"i":1},"2025-10":{"v":7,"i":0},"2025-11":{"v":7,"i":0},"2025-12":{"v":16,"i":4},"2026-01":{"v":15,"i":1},"2026-02":{"v":19,"i":0},"2026-03":{"v":2,"i":0},"2026-04":{"v":7,"i":0},"2026-05":{"v":16,"i":0},"2026-06":{"v":4,"i":0}},"TV":{"2025-02":{"v":1,"i":0},"2025-03":{"v":2,"i":0},"2025-04":{"v":7,"i":2},"2025-05":{"v":3,"i":0},"2025-06":{"v":2,"i":0},"2025-07":{"v":5,"i":1},"2025-08":{"v":4,"i":1},"2025-09":{"v":4,"i":0},"2025-11":{"v":2,"i":0},"2025-12":{"v":2,"i":0},"2026-01":{"v":3,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":1,"i":0},"2026-05":{"v":7,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Fixa":{"2025-06":{"v":1,"i":0},"2025-12":{"v":1,"i":0},"2026-04":{"v":2,"i":0}},"Telefonia Móvel":{"2025-08":{"v":2,"i":2},"2025-09":{"v":14,"i":0},"2025-10":{"v":2,"i":0},"2025-11":{"v":4,"i":2},"2026-01":{"v":2,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":5,"i":0},"2026-05":{"v":3,"i":0}}},"Olimpia":{"Internet":{"2024-11":{"v":2,"i":1},"2025-04":{"v":1,"i":1}}},"Olímpia":{"Internet":{"2024-11":{"v":195,"i":42},"2024-12":{"v":171,"i":28},"2025-01":{"v":164,"i":35},"2025-02":{"v":128,"i":26},"2025-03":{"v":115,"i":25},"2025-04":{"v":117,"i":33},"2025-05":{"v":127,"i":27},"2025-06":{"v":118,"i":18},"2025-07":{"v":134,"i":10},"2025-08":{"v":88,"i":18},"2025-09":{"v":83,"i":11},"2025-10":{"v":118,"i":16},"2025-11":{"v":78,"i":9},"2025-12":{"v":100,"i":9},"2026-01":{"v":86,"i":4},"2026-02":{"v":84,"i":4},"2026-03":{"v":97,"i":2},"2026-04":{"v":97,"i":0},"2026-05":{"v":112,"i":0},"2026-06":{"v":71,"i":0}},"TV":{"2025-02":{"v":28,"i":5},"2025-03":{"v":27,"i":7},"2025-04":{"v":25,"i":5},"2025-05":{"v":14,"i":2},"2025-06":{"v":32,"i":6},"2025-07":{"v":17,"i":1},"2025-08":{"v":17,"i":3},"2025-09":{"v":14,"i":5},"2025-10":{"v":7,"i":1},"2025-11":{"v":12,"i":3},"2025-12":{"v":13,"i":2},"2026-01":{"v":18,"i":1},"2026-02":{"v":19,"i":0},"2026-03":{"v":25,"i":1},"2026-04":{"v":18,"i":0},"2026-05":{"v":18,"i":0},"2026-06":{"v":14,"i":0}},"Telefonia Fixa":{"2025-04":{"v":2,"i":0},"2025-05":{"v":14,"i":0},"2025-06":{"v":5,"i":0},"2025-07":{"v":6,"i":0},"2025-08":{"v":3,"i":0},"2025-09":{"v":4,"i":0},"2025-10":{"v":6,"i":0},"2025-11":{"v":5,"i":0},"2025-12":{"v":5,"i":0},"2026-01":{"v":7,"i":0},"2026-02":{"v":1,"i":0},"2026-03":{"v":5,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":9,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Móvel":{"2025-07":{"v":1,"i":0},"2025-08":{"v":65,"i":3},"2025-09":{"v":65,"i":4},"2025-10":{"v":56,"i":9},"2025-11":{"v":49,"i":5},"2025-12":{"v":51,"i":11},"2026-01":{"v":38,"i":0},"2026-02":{"v":14,"i":0},"2026-03":{"v":38,"i":0},"2026-04":{"v":31,"i":0},"2026-05":{"v":48,"i":0},"2026-06":{"v":11,"i":0}}},"Onda Verde":{"Internet":{"2024-11":{"v":13,"i":5},"2024-12":{"v":7,"i":3},"2025-01":{"v":9,"i":5},"2025-02":{"v":6,"i":1},"2025-03":{"v":11,"i":3},"2025-04":{"v":8,"i":5},"2025-05":{"v":4,"i":1},"2025-06":{"v":10,"i":1},"2025-07":{"v":6,"i":3},"2025-08":{"v":5,"i":1},"2025-09":{"v":6,"i":0},"2025-10":{"v":1,"i":0},"2025-11":{"v":1,"i":1},"2025-12":{"v":1,"i":0},"2026-02":{"v":4,"i":0},"2026-03":{"v":14,"i":0},"2026-04":{"v":7,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":1,"i":0}},"TV":{"2025-02":{"v":1,"i":0},"2025-03":{"v":2,"i":1},"2025-06":{"v":3,"i":0},"2025-07":{"v":2,"i":0},"2025-08":{"v":1,"i":0},"2025-09":{"v":4,"i":0},"2025-10":{"v":1,"i":0},"2026-01":{"v":1,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":1,"i":0},"2026-05":{"v":1,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Fixa":{"2025-05":{"v":1,"i":0},"2025-12":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":2,"i":0},"2025-10":{"v":2,"i":0},"2025-11":{"v":4,"i":0},"2026-02":{"v":2,"i":0},"2026-03":{"v":1,"i":0}}},"Palmares Paulista":{"Internet":{"2024-11":{"v":20,"i":10},"2024-12":{"v":18,"i":7},"2025-01":{"v":18,"i":6},"2025-02":{"v":9,"i":2},"2025-03":{"v":4,"i":4},"2025-04":{"v":7,"i":3},"2025-05":{"v":4,"i":1},"2025-06":{"v":4,"i":0},"2025-07":{"v":5,"i":3},"2025-08":{"v":1,"i":0},"2025-09":{"v":1,"i":1},"2025-11":{"v":3,"i":1},"2025-12":{"v":2,"i":1},"2026-01":{"v":1,"i":1},"2026-02":{"v":3,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":6,"i":0},"2026-05":{"v":1,"i":0},"2026-06":{"v":2,"i":0}},"TV":{"2025-02":{"v":4,"i":0},"2025-03":{"v":4,"i":1},"2025-04":{"v":3,"i":2},"2025-05":{"v":5,"i":1},"2025-06":{"v":2,"i":0},"2025-07":{"v":4,"i":1},"2025-10":{"v":1,"i":0},"2026-01":{"v":3,"i":1},"2026-02":{"v":1,"i":0},"2026-04":{"v":1,"i":0}},"Telefonia Fixa":{"2025-09":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":6,"i":1},"2025-10":{"v":2,"i":0},"2025-11":{"v":2,"i":2},"2025-12":{"v":4,"i":2},"2026-04":{"v":2,"i":0},"2026-05":{"v":2,"i":0}}},"Paraíso":{"Internet":{"2024-11":{"v":19,"i":7},"2024-12":{"v":19,"i":10},"2025-01":{"v":18,"i":9},"2025-02":{"v":13,"i":2},"2025-03":{"v":9,"i":4},"2025-04":{"v":13,"i":7},"2025-05":{"v":4,"i":1},"2025-06":{"v":4,"i":1},"2025-07":{"v":6,"i":0},"2025-08":{"v":5,"i":0},"2025-09":{"v":7,"i":1},"2025-10":{"v":8,"i":2},"2025-11":{"v":3,"i":0},"2025-12":{"v":2,"i":1},"2026-01":{"v":7,"i":0},"2026-02":{"v":7,"i":0},"2026-03":{"v":3,"i":0},"2026-04":{"v":3,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":4,"i":0}},"TV":{"2025-02":{"v":11,"i":3},"2025-03":{"v":8,"i":1},"2025-04":{"v":4,"i":2},"2025-05":{"v":2,"i":1},"2025-06":{"v":4,"i":1},"2025-07":{"v":5,"i":0},"2025-08":{"v":1,"i":0},"2025-09":{"v":2,"i":0},"2025-10":{"v":7,"i":1},"2025-11":{"v":2,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":2,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":2,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":3,"i":0}},"Telefonia Móvel":{"2025-08":{"v":13,"i":1},"2025-09":{"v":12,"i":1},"2025-10":{"v":3,"i":0},"2025-11":{"v":7,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":2,"i":0},"2026-02":{"v":1,"i":0},"2026-03":{"v":2,"i":0},"2026-04":{"v":3,"i":0},"2026-05":{"v":7,"i":0},"2026-06":{"v":1,"i":0}}},"Piracicaba":{"Telefonia Móvel":{"2025-08":{"v":2,"i":0}}},"Pirangi":{"Internet":{"2024-11":{"v":28,"i":10},"2024-12":{"v":19,"i":6},"2025-01":{"v":14,"i":4},"2025-02":{"v":17,"i":6},"2025-03":{"v":18,"i":7},"2025-04":{"v":12,"i":8},"2025-05":{"v":11,"i":3},"2025-06":{"v":15,"i":1},"2025-07":{"v":11,"i":2},"2025-08":{"v":9,"i":3},"2025-09":{"v":10,"i":3},"2025-10":{"v":12,"i":5},"2025-11":{"v":10,"i":2},"2025-12":{"v":12,"i":2},"2026-01":{"v":13,"i":1},"2026-02":{"v":23,"i":0},"2026-03":{"v":14,"i":0},"2026-04":{"v":12,"i":0},"2026-05":{"v":17,"i":0},"2026-06":{"v":8,"i":0}},"TV":{"2025-02":{"v":4,"i":0},"2025-03":{"v":8,"i":3},"2025-04":{"v":4,"i":1},"2025-06":{"v":3,"i":0},"2025-07":{"v":3,"i":0},"2025-08":{"v":2,"i":1},"2025-09":{"v":1,"i":0},"2025-10":{"v":1,"i":0},"2025-11":{"v":3,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":2,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":4,"i":0},"2026-05":{"v":2,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Fixa":{"2026-02":{"v":1,"i":0},"2026-03":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":3,"i":1},"2025-09":{"v":5,"i":0},"2025-10":{"v":4,"i":0},"2025-11":{"v":3,"i":1},"2026-01":{"v":3,"i":0},"2026-02":{"v":3,"i":0},"2026-03":{"v":15,"i":0},"2026-05":{"v":5,"i":0},"2026-06":{"v":2,"i":0}}},"Planura":{"Telefonia Móvel":{"2026-04":{"v":1,"i":0}}},"Ribeiro Dos Santos":{"Internet":{"2024-11":{"v":1,"i":0},"2024-12":{"v":3,"i":0},"2025-01":{"v":2,"i":0}}},"Serra Azul":{"Telefonia Móvel":{"2025-11":{"v":1,"i":1}}},"Severínia":{"Internet":{"2024-11":{"v":55,"i":17},"2024-12":{"v":49,"i":21},"2025-01":{"v":52,"i":12},"2025-02":{"v":28,"i":7},"2025-03":{"v":57,"i":23},"2025-04":{"v":54,"i":16},"2025-05":{"v":32,"i":7},"2025-06":{"v":25,"i":8},"2025-07":{"v":27,"i":9},"2025-08":{"v":20,"i":5},"2025-09":{"v":36,"i":8},"2025-10":{"v":35,"i":5},"2025-11":{"v":29,"i":2},"2025-12":{"v":84,"i":3},"2026-01":{"v":27,"i":5},"2026-02":{"v":36,"i":2},"2026-03":{"v":40,"i":2},"2026-04":{"v":29,"i":0},"2026-05":{"v":23,"i":0},"2026-06":{"v":25,"i":0}},"TV":{"2025-02":{"v":14,"i":4},"2025-03":{"v":34,"i":12},"2025-04":{"v":16,"i":4},"2025-05":{"v":12,"i":1},"2025-06":{"v":9,"i":2},"2025-07":{"v":17,"i":1},"2025-08":{"v":5,"i":2},"2025-09":{"v":12,"i":1},"2025-10":{"v":3,"i":0},"2025-11":{"v":6,"i":0},"2025-12":{"v":3,"i":1},"2026-01":{"v":8,"i":3},"2026-02":{"v":11,"i":2},"2026-03":{"v":11,"i":0},"2026-04":{"v":12,"i":0},"2026-05":{"v":6,"i":0},"2026-06":{"v":9,"i":0}},"Telefonia Fixa":{"2025-05":{"v":3,"i":0},"2025-06":{"v":2,"i":0},"2025-11":{"v":1,"i":0},"2025-12":{"v":2,"i":0},"2026-03":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":11,"i":4},"2025-09":{"v":16,"i":3},"2025-10":{"v":16,"i":3},"2025-11":{"v":21,"i":12},"2025-12":{"v":5,"i":5},"2026-01":{"v":19,"i":8},"2026-02":{"v":11,"i":2},"2026-03":{"v":24,"i":0},"2026-04":{"v":18,"i":0},"2026-05":{"v":9,"i":0},"2026-06":{"v":22,"i":0}}},"Suinana":{"Internet":{"2024-11":{"v":1,"i":0}}},"São José Do Rio Preto":{"Telefonia Móvel":{"2025-10":{"v":1,"i":1},"2026-01":{"v":1,"i":0},"2026-02":{"v":3,"i":3},"2026-04":{"v":2,"i":0}}},"Tabapuã":{"Internet":{"2024-11":{"v":54,"i":9},"2024-12":{"v":36,"i":4},"2025-01":{"v":48,"i":14},"2025-02":{"v":30,"i":8},"2025-03":{"v":23,"i":5},"2025-04":{"v":29,"i":4},"2025-05":{"v":37,"i":11},"2025-06":{"v":15,"i":4},"2025-07":{"v":23,"i":2},"2025-08":{"v":16,"i":1},"2025-09":{"v":30,"i":3},"2025-10":{"v":14,"i":0},"2025-11":{"v":13,"i":3},"2025-12":{"v":13,"i":0},"2026-01":{"v":17,"i":2},"2026-02":{"v":11,"i":0},"2026-03":{"v":17,"i":1},"2026-04":{"v":15,"i":0},"2026-05":{"v":16,"i":0},"2026-06":{"v":9,"i":0}},"TV":{"2025-02":{"v":10,"i":5},"2025-03":{"v":6,"i":2},"2025-04":{"v":6,"i":2},"2025-05":{"v":13,"i":3},"2025-06":{"v":4,"i":0},"2025-07":{"v":11,"i":0},"2025-08":{"v":10,"i":0},"2025-09":{"v":6,"i":0},"2025-10":{"v":6,"i":1},"2025-11":{"v":2,"i":0},"2025-12":{"v":3,"i":0},"2026-01":{"v":4,"i":0},"2026-02":{"v":8,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":4,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Fixa":{"2025-06":{"v":5,"i":0},"2025-07":{"v":2,"i":1},"2025-10":{"v":1,"i":0},"2025-11":{"v":1,"i":0},"2026-02":{"v":1,"i":0},"2026-03":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":9,"i":0},"2025-09":{"v":7,"i":1},"2025-10":{"v":6,"i":2},"2025-11":{"v":23,"i":6},"2025-12":{"v":2,"i":0},"2026-01":{"v":2,"i":1},"2026-02":{"v":1,"i":0},"2026-03":{"v":5,"i":0},"2026-05":{"v":12,"i":0}}},"Taiaçu":{"Internet":{"2024-11":{"v":20,"i":6},"2024-12":{"v":15,"i":6},"2025-01":{"v":6,"i":4},"2025-02":{"v":7,"i":5},"2025-03":{"v":6,"i":0},"2025-04":{"v":10,"i":3},"2025-05":{"v":7,"i":2},"2025-06":{"v":6,"i":2},"2025-07":{"v":6,"i":1},"2025-08":{"v":9,"i":5},"2025-09":{"v":10,"i":5},"2025-10":{"v":1,"i":1},"2025-11":{"v":7,"i":2},"2025-12":{"v":4,"i":0},"2026-01":{"v":10,"i":1},"2026-02":{"v":7,"i":1},"2026-03":{"v":15,"i":0},"2026-04":{"v":9,"i":0},"2026-05":{"v":6,"i":0},"2026-06":{"v":1,"i":0}},"TV":{"2025-02":{"v":2,"i":2},"2025-03":{"v":1,"i":1},"2025-04":{"v":1,"i":0},"2025-05":{"v":3,"i":2},"2025-07":{"v":2,"i":0},"2025-08":{"v":2,"i":2},"2025-09":{"v":2,"i":1},"2025-11":{"v":2,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":3,"i":0},"2026-03":{"v":8,"i":0},"2026-04":{"v":2,"i":0},"2026-05":{"v":1,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":3,"i":2},"2025-09":{"v":2,"i":0},"2025-10":{"v":2,"i":0},"2025-11":{"v":3,"i":1},"2026-01":{"v":4,"i":1},"2026-02":{"v":1,"i":0},"2026-03":{"v":7,"i":1},"2026-04":{"v":3,"i":0},"2026-05":{"v":2,"i":0},"2026-06":{"v":2,"i":0}}},"Taiúva":{"Internet":{"2024-11":{"v":13,"i":2},"2024-12":{"v":8,"i":2},"2025-01":{"v":13,"i":6},"2025-02":{"v":6,"i":2},"2025-03":{"v":7,"i":1},"2025-04":{"v":2,"i":1},"2025-05":{"v":7,"i":2},"2025-06":{"v":4,"i":0},"2025-07":{"v":7,"i":3},"2025-08":{"v":6,"i":2},"2025-09":{"v":6,"i":1},"2025-10":{"v":8,"i":2},"2025-11":{"v":3,"i":0},"2025-12":{"v":3,"i":1},"2026-01":{"v":5,"i":0},"2026-02":{"v":8,"i":1},"2026-03":{"v":9,"i":0},"2026-04":{"v":6,"i":0},"2026-05":{"v":9,"i":0},"2026-06":{"v":2,"i":0}},"TV":{"2025-02":{"v":6,"i":0},"2025-03":{"v":8,"i":2},"2025-04":{"v":1,"i":0},"2025-05":{"v":3,"i":1},"2025-06":{"v":1,"i":0},"2025-09":{"v":1,"i":0},"2025-10":{"v":2,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":3,"i":0},"2026-02":{"v":3,"i":1},"2026-03":{"v":1,"i":0},"2026-04":{"v":5,"i":0},"2026-05":{"v":3,"i":0},"2026-06":{"v":1,"i":0}},"Telefonia Fixa":{"2025-09":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":4,"i":0},"2025-09":{"v":7,"i":0},"2025-11":{"v":3,"i":0},"2025-12":{"v":2,"i":0},"2026-01":{"v":2,"i":0},"2026-02":{"v":5,"i":0},"2026-03":{"v":1,"i":0},"2026-04":{"v":3,"i":0},"2026-05":{"v":1,"i":0}}},"Taquaral":{"Internet":{"2024-11":{"v":3,"i":2},"2024-12":{"v":8,"i":0},"2025-01":{"v":5,"i":0},"2025-02":{"v":13,"i":2},"2025-03":{"v":4,"i":1},"2025-04":{"v":4,"i":2},"2025-05":{"v":8,"i":2},"2025-06":{"v":1,"i":0},"2025-07":{"v":3,"i":0},"2025-09":{"v":3,"i":0},"2025-10":{"v":4,"i":0},"2025-11":{"v":4,"i":1},"2025-12":{"v":5,"i":0},"2026-01":{"v":2,"i":1},"2026-02":{"v":4,"i":0},"2026-03":{"v":4,"i":1},"2026-04":{"v":5,"i":0},"2026-05":{"v":4,"i":0},"2026-06":{"v":2,"i":0}},"TV":{"2025-02":{"v":4,"i":1},"2025-03":{"v":2,"i":0},"2025-05":{"v":1,"i":0},"2025-09":{"v":1,"i":0},"2025-11":{"v":4,"i":0},"2025-12":{"v":3,"i":0},"2026-03":{"v":3,"i":1},"2026-05":{"v":2,"i":0}},"Telefonia Móvel":{"2025-08":{"v":1,"i":0},"2025-09":{"v":1,"i":0},"2025-11":{"v":11,"i":4},"2025-12":{"v":7,"i":3},"2026-05":{"v":2,"i":0},"2026-06":{"v":4,"i":0}}},"Terra Roxa":{"Telefonia Móvel":{"2025-11":{"v":1,"i":1}}},"Valparaíso":{"Telefonia Móvel":{"2026-02":{"v":1,"i":1}}},"Viradouro":{"Telefonia Móvel":{"2025-10":{"v":1,"i":0},"2025-11":{"v":1,"i":1},"2026-01":{"v":2,"i":0}}},"Vista Alegre Do Alto":{"Internet":{"2024-11":{"v":14,"i":2},"2024-12":{"v":13,"i":1},"2025-01":{"v":19,"i":4},"2025-02":{"v":12,"i":4},"2025-03":{"v":16,"i":4},"2025-04":{"v":12,"i":3},"2025-05":{"v":10,"i":6},"2025-06":{"v":11,"i":3},"2025-07":{"v":10,"i":3},"2025-08":{"v":11,"i":4},"2025-09":{"v":17,"i":3},"2025-10":{"v":13,"i":1},"2025-11":{"v":16,"i":2},"2025-12":{"v":10,"i":0},"2026-01":{"v":8,"i":1},"2026-02":{"v":8,"i":0},"2026-03":{"v":14,"i":1},"2026-04":{"v":10,"i":0},"2026-05":{"v":15,"i":0},"2026-06":{"v":10,"i":0}},"TV":{"2025-02":{"v":2,"i":0},"2025-03":{"v":5,"i":2},"2025-04":{"v":4,"i":0},"2025-05":{"v":4,"i":1},"2025-06":{"v":5,"i":2},"2025-07":{"v":2,"i":0},"2025-08":{"v":3,"i":1},"2025-10":{"v":1,"i":0},"2025-11":{"v":1,"i":1},"2025-12":{"v":1,"i":0},"2026-01":{"v":2,"i":0},"2026-04":{"v":1,"i":0},"2026-05":{"v":1,"i":0},"2026-06":{"v":2,"i":0}},"Telefonia Fixa":{"2025-07":{"v":1,"i":0},"2025-09":{"v":1,"i":0}},"Telefonia Móvel":{"2025-08":{"v":17,"i":1},"2025-09":{"v":9,"i":1},"2025-10":{"v":8,"i":0},"2025-11":{"v":1,"i":0},"2025-12":{"v":1,"i":0},"2026-01":{"v":1,"i":0},"2026-03":{"v":8,"i":0},"2026-04":{"v":14,"i":0},"2026-05":{"v":8,"i":0},"2026-06":{"v":7,"i":0}}}};
+  
+const COHORTS_ALL = ["2024-11", "2024-12", "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"];
 let activeProdFilter = 'Todos';
 
 // ── DEFAULT CITY DATA (base Abr/2026) ─────────────────────────
 let CIDADES = [
   {
+    "cidade": "Jaborandi",
+    "tier": "RESTRITO",
+    "total": 2,
+    "inadim": 2,
+    "taxa": 100,
+    "dmin": 60,
+    "daprov": 100,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "São José Do Rio Preto",
+    "tier": "RESTRITO",
+    "total": 7,
+    "inadim": 4,
+    "taxa": 57.1,
+    "dmin": 60,
+    "daprov": 100,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Guapiaçu",
+    "tier": "RESTRITO",
+    "total": 5,
+    "inadim": 2,
+    "taxa": 40,
+    "dmin": 60,
+    "daprov": 100,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Monte Verde",
+    "tier": "RESTRITO",
+    "total": 3,
+    "inadim": 1,
+    "taxa": 33.3,
+    "dmin": 60,
+    "daprov": 100,
+    "baixoVolume": true
+  },
+  {
     "cidade": "Palmares Paulista",
     "tier": "RESTRITO",
-    "total": 169,
-    "inadim": 38,
-    "taxa": 22.5,
+    "total": 157,
+    "inadim": 51,
+    "taxa": 32.5,
     "dmin": 60,
-    "daprov": 100
-  },
-  {
-    "cidade": "Onda Verde",
-    "tier": "RESTRITO",
-    "total": 165,
-    "inadim": 24,
-    "taxa": 14.5,
-    "dmin": 60,
-    "daprov": 100
-  },
-  {
-    "cidade": "Paraíso",
-    "tier": "RESTRITO",
-    "total": 296,
-    "inadim": 41,
-    "taxa": 13.9,
-    "dmin": 60,
-    "daprov": 100
-  },
-  {
-    "cidade": "Colômbia",
-    "tier": "MODERADO",
-    "total": 683,
-    "inadim": 81,
-    "taxa": 11.9,
-    "dmin": 30,
-    "daprov": 60
-  },
-  {
-    "cidade": "Taiaçu",
-    "tier": "MODERADO",
-    "total": 243,
-    "inadim": 29,
-    "taxa": 11.9,
-    "dmin": 30,
-    "daprov": 60
+    "daprov": 100,
+    "baixoVolume": false
   },
   {
     "cidade": "Barretos",
     "tier": "MODERADO",
-    "total": 4444,
-    "inadim": 510,
-    "taxa": 11.5,
+    "total": 4273,
+    "inadim": 1108,
+    "taxa": 25.9,
     "dmin": 30,
-    "daprov": 60
+    "daprov": 60,
+    "baixoVolume": false
   },
   {
-    "cidade": "Pirangi",
+    "cidade": "Taiaçu",
     "tier": "MODERADO",
-    "total": 415,
-    "inadim": 39,
-    "taxa": 9.4,
+    "total": 222,
+    "inadim": 57,
+    "taxa": 25.7,
     "dmin": 30,
-    "daprov": 60
+    "daprov": 60,
+    "baixoVolume": false
   },
   {
-    "cidade": "Taiúva",
+    "cidade": "Viradouro",
     "tier": "MODERADO",
-    "total": 215,
-    "inadim": 20,
-    "taxa": 9.3,
+    "total": 4,
+    "inadim": 1,
+    "taxa": 25,
     "dmin": 30,
-    "daprov": 60
+    "daprov": 60,
+    "baixoVolume": true
   },
   {
-    "cidade": "Novais",
+    "cidade": "Colômbia",
     "tier": "MODERADO",
-    "total": 351,
-    "inadim": 32,
-    "taxa": 9.1,
+    "total": 624,
+    "inadim": 129,
+    "taxa": 20.7,
     "dmin": 30,
-    "daprov": 60
+    "daprov": 60,
+    "baixoVolume": false
   },
   {
-    "cidade": "Tabapuã",
+    "cidade": "Paraíso",
     "tier": "MODERADO",
-    "total": 701,
-    "inadim": 63,
-    "taxa": 9,
+    "total": 277,
+    "inadim": 56,
+    "taxa": 20.2,
     "dmin": 30,
-    "daprov": 60
+    "daprov": 60,
+    "baixoVolume": false
   },
   {
     "cidade": "Severínia",
-    "tier": "MODERADO",
-    "total": 1193,
-    "inadim": 105,
-    "taxa": 8.8,
-    "dmin": 30,
-    "daprov": 60
+    "tier": "PADRÃO",
+    "total": 1132,
+    "inadim": 222,
+    "taxa": 19.6,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Onda Verde",
+    "tier": "PADRÃO",
+    "total": 154,
+    "inadim": 30,
+    "taxa": 19.5,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Bebedouro",
-    "tier": "MODERADO",
-    "total": 2905,
-    "inadim": 250,
-    "taxa": 8.6,
-    "dmin": 30,
-    "daprov": 60
+    "tier": "PADRÃO",
+    "total": 2782,
+    "inadim": 534,
+    "taxa": 19.2,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Pirangi",
+    "tier": "PADRÃO",
+    "total": 373,
+    "inadim": 70,
+    "taxa": 18.8,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Altair",
-    "tier": "MODERADO",
-    "total": 235,
-    "inadim": 19,
-    "taxa": 8.1,
-    "dmin": 30,
-    "daprov": 60
-  },
-  {
-    "cidade": "Guaraci",
-    "tier": "MODERADO",
-    "total": 927,
-    "inadim": 72,
-    "taxa": 7.8,
-    "dmin": 30,
-    "daprov": 60
+    "tier": "PADRÃO",
+    "total": 213,
+    "inadim": 38,
+    "taxa": 17.8,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Monte Azul Paulista",
-    "tier": "MODERADO",
-    "total": 964,
-    "inadim": 67,
-    "taxa": 7,
-    "dmin": 30,
-    "daprov": 60
-  },
-  {
-    "cidade": "Vista Alegre Do Alto",
     "tier": "PADRÃO",
-    "total": 381,
-    "inadim": 25,
-    "taxa": 6.6,
+    "total": 878,
+    "inadim": 141,
+    "taxa": 16.1,
     "dmin": 0,
-    "daprov": 25
-  },
-  {
-    "cidade": "Olímpia",
-    "tier": "PADRÃO",
-    "total": 3403,
-    "inadim": 211,
-    "taxa": 6.2,
-    "dmin": 0,
-    "daprov": 25
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Taquaral",
     "tier": "PADRÃO",
-    "total": 136,
-    "inadim": 7,
-    "taxa": 5.1,
+    "total": 132,
+    "inadim": 21,
+    "taxa": 15.9,
     "dmin": 0,
-    "daprov": 25
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Novais",
+    "tier": "PADRÃO",
+    "total": 322,
+    "inadim": 51,
+    "taxa": 15.8,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Taiúva",
+    "tier": "PADRÃO",
+    "total": 200,
+    "inadim": 30,
+    "taxa": 15,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Tabapuã",
+    "tier": "PADRÃO",
+    "total": 648,
+    "inadim": 95,
+    "taxa": 14.7,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Vista Alegre Do Alto",
+    "tier": "PADRÃO",
+    "total": 359,
+    "inadim": 51,
+    "taxa": 14.2,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Olímpia",
+    "tier": "PADRÃO",
+    "total": 3148,
+    "inadim": 393,
+    "taxa": 12.5,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Guaraci",
+    "tier": "PADRÃO",
+    "total": 838,
+    "inadim": 99,
+    "taxa": 11.8,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Embaúba",
     "tier": "PADRÃO",
-    "total": 166,
-    "inadim": 7,
-    "taxa": 4.2,
+    "total": 153,
+    "inadim": 17,
+    "taxa": 11.1,
     "dmin": 0,
-    "daprov": 25
+    "daprov": 25,
+    "baixoVolume": false
   },
   {
     "cidade": "Cajobi",
     "tier": "PADRÃO",
-    "total": 1115,
-    "inadim": 42,
-    "taxa": 3.8,
+    "total": 1018,
+    "inadim": 100,
+    "taxa": 9.8,
     "dmin": 0,
-    "daprov": 25
+    "daprov": 25,
+    "baixoVolume": false
+  },
+  {
+    "cidade": "Catanduva",
+    "tier": "PADRÃO",
+    "total": 9,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Frutal",
+    "tier": "PADRÃO",
+    "total": 12,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Laranjeiras",
+    "tier": "PADRÃO",
+    "total": 3,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Marcondésia",
+    "tier": "PADRÃO",
+    "total": 2,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Monte Verde Paulista",
+    "tier": "PADRÃO",
+    "total": 4,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Piracicaba",
+    "tier": "PADRÃO",
+    "total": 2,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
+  },
+  {
+    "cidade": "Ribeiro Dos Santos",
+    "tier": "PADRÃO",
+    "total": 6,
+    "inadim": 0,
+    "taxa": 0,
+    "dmin": 0,
+    "daprov": 25,
+    "baixoVolume": true
   }
 ];
+  
 
 let TIER_MAP = {};
 CIDADES.forEach(c => TIER_MAP[c.cidade] = c.tier);
@@ -1064,8 +1753,15 @@ function handleFile(file, key) {
   reader.onload = function(e) {
     try {
       const wb = XLSX.read(e.target.result, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
+      // Try to read Vendas sheet specifically, fallback to first sheet
+      const wsName = wb.SheetNames.includes('Vendas') ? 'Vendas' : wb.SheetNames[0];
+      const ws = wb.Sheets[wsName];
       const data = XLSX.utils.sheet_to_json(ws, {defval:null});
+      // Also read Churn sheet if present (for cross-reference in v3)
+      if (wb.SheetNames.includes('Churn') && key === 'fv') {
+        const wsChurn = wb.Sheets['Churn'];
+        data.__churnRows = XLSX.utils.sheet_to_json(wsChurn, {defval:null});
+      }
       
       // Validate columns
       const required = key==='fv'
@@ -1118,27 +1814,59 @@ function processFiles() {
       let newCidades = CIDADES; // fallback
       let totalContratos = 19187, totalSerasa = 984;
 
-      // ── Process Força de Vendas ────────────────────────────
+      // ── Process Força de Vendas (v3: cross-reference Vendas × Churn) ──
       if (files.fv) {
         const fv = files.fv;
         totalContratos = fv.length;
+
+        // Build churn ID set and motivo map from Churn sheet
+        const churnContratosIds = new Set();
+        const churnMotivoMap = {};
+        const churnSheet = files.fv.__churnRows || [];
+        churnSheet.forEach(row => {
+          const id = (row['ID Contrato']||'').toString().replace(/\.0$/,'').trim();
+          if (id) {
+            churnContratosIds.add(id);
+            churnMotivoMap[id] = (row['Motivo Específico']||'').toString().trim();
+          }
+        });
+
+        // Maturation cutoff: only cohorts with >= 90 days
+        const today = new Date();
+        const cutoff = new Date(today.getTime() - 90*24*60*60*1000);
 
         // Count by city
         const cityTotals = {};
         const cityInadim = {};
 
+        // v3: Cross-reference logic — Vendas × Churn
+        // Build churn ID set first if churn sheet available
+        // (handled separately in processFiles — here we check if row is in churnContratosIds)
         // Detect column names flexibly (trim whitespace from keys)
+        // v3: load both Vendas and Churn sheets
+        // If file has multiple sheets, try to read Churn too
         const fvKeys = fv.length > 0 ? Object.keys(fv[0]) : [];
         const cidadeCol  = fvKeys.find(k => k.trim() === 'Cidade') || 'Cidade';
         const motivoCol  = fvKeys.find(k => k.trim() === 'Motivo Cancelamento') || 'Motivo Cancelamento';
         const contratCol = fvKeys.find(k => k.trim() === 'ID Contrato') || 'ID Contrato';
 
+        const dtCol = fvKeys.find(k => k.trim() === 'DT Abertura') || 'DT Abertura';
         fv.forEach(row => {
           const cidade = (row[cidadeCol]||'').trim();
           if (!cidade) return;
+
+          // Maturation filter: skip contracts newer than 90 days
+          const dtAbertura = row[dtCol] ? new Date(row[dtCol]) : null;
+          if (dtAbertura && dtAbertura > cutoff) return;
+
           cityTotals[cidade] = (cityTotals[cidade]||0) + 1;
-          const motivo = (row[motivoCol]||'').trim();
-          if (INADIM_MOTIVOS.some(m => motivo === m)) {
+
+          // Cross-reference: check if this contract is in Churn with inadim motivo
+          const contratoId = (row[contratCol]||'').toString().replace(/\.0$/,'').trim();
+          const isInChurn = churnContratosIds.has(contratoId);
+          const motivoChurn = isInChurn ? (churnMotivoMap[contratoId]||'') : (row[motivoCol]||'').trim();
+          const isInadim = INADIM_MOTIVOS.some(m => motivoChurn === m);
+          if (isInadim) {
             cityInadim[cidade] = (cityInadim[cidade]||0) + 1;
           }
         });
@@ -1150,9 +1878,9 @@ function processFiles() {
             const inadim = cityInadim[cidade] || 0;
             const taxa   = parseFloat((inadim/total*100).toFixed(1));
             let tier, dmin, daprov;
-            if (taxa >= 12)     { tier='RESTRITO'; dmin=60; daprov=100; }
-            else if (taxa >= 7) { tier='MODERADO'; dmin=30; daprov=60;  }
-            else                { tier='PADRÃO';   dmin=0;  daprov=25;  }
+            if (taxa > 28)      { tier='RESTRITO'; dmin=60; daprov=100; }
+            else if (taxa >= 20) { tier='MODERADO'; dmin=30; daprov=60;  }
+            else                 { tier='PADRÃO';   dmin=0;  daprov=25;  }
             return {cidade, tier, total, inadim, taxa, dmin, daprov};
           })
           .sort((a,b) => b.taxa - a.taxa);
@@ -1457,7 +2185,7 @@ function setProdFilter(produto, btn) {
     header.textContent = 'Taxa Real (geral)';
   } else {
     note.style.display = 'block';
-    note.innerHTML = `📊 Exibindo contratos e taxa de inadimplência exclusivamente para <strong>${produto}</strong>. Cidades reordenadas pela taxa do produto. Cidades sem volume mínimo (10 contratos) são ocultadas.`;
+    note.innerHTML = `📊 Exibindo contratos e taxa de inadimplência exclusivamente para <strong>${produto}</strong>. Cidades reordenadas pela taxa do produto. Cidades com poucos contratos exibidas com badge ⚠ baixo vol.`;
     header.textContent = `Taxa — ${produto}`;
   }
   renderCityTable();
@@ -1470,82 +2198,115 @@ function renderCityTable() {
   const isFiltered = activeProdFilter !== 'Todos';
 
   // Build display list
-  let list = getCidades().map(c => {
+  // Apply city visibility filter
+  const allCidades = getCidades();
+  const isFiltering = CIDADES_VISIVEIS.size > 0;
+  const visSet = CIDADES_VISIVEIS;
+
+  let list = allCidades.filter(c => {
+    if (!isFiltering) return true;
+    if (visSet.has('__none__')) return false;
+    return visSet.has(c.cidade);
+  }).map(c => {
     if (!isFiltered) {
-      return { ...c, displayTotal: c.total || 0, displayInadim: c.inadim || 0, displayTaxa: c.taxa || 0, hasProd: true };
+      return { ...c, displayTotal: c.total||0, displayInadim: c.inadim||0, displayTaxa: c.taxa||0 };
     }
-    const prodData = (CIDADE_PRODUTO[c.cidade] || {})[activeProdFilter];
-    if (!prodData) return null; // city has no data for this product
-    return {
-      ...c,
-      displayTotal:  prodData.total,
-      displayInadim: prodData.inadim,
-      displayTaxa:   prodData.taxa,
-      hasProd: true
-    };
+    const prodData = (CIDADE_PRODUTO[c.cidade]||{})[activeProdFilter];
+    if (!prodData) {
+      // City has no data for this product — show with zero and baixoVolume flag
+      return { ...c, displayTotal: 0, displayInadim: 0, displayTaxa: 0, semDados: true, baixoVolume: true };
+    }
+    const pBaixo = prodData.total < 30;
+    return { ...c, displayTotal: prodData.total, displayInadim: prodData.inadim, displayTaxa: prodData.taxa, baixoVolume: pBaixo };
   }).filter(Boolean);
 
-  // When filtered: re-sort by product taxa and re-tier
+  // When filtered: re-sort and re-tier by product taxa (semDados at end)
   if (isFiltered) {
-    list = list.sort((a, b) => b.displayTaxa - a.displayTaxa).map(c => {
-      let tier;
-      if (c.displayTaxa >= 12)     tier = 'RESTRITO';
-      else if (c.displayTaxa >= 7) tier = 'MODERADO';
-      else                          tier = 'PADRÃO';
-      return { ...c, displayTier: tier };
+    list = list.sort((a,b) => {
+      if (a.semDados && !b.semDados) return 1;
+      if (!a.semDados && b.semDados) return -1;
+      return b.displayTaxa - a.displayTaxa;
+    }).map(c => {
+      let displayTier;
+      if (c.displayTaxa > 28)       displayTier = 'RESTRITO';
+      else if (c.displayTaxa >= 20) displayTier = 'MODERADO';
+      else                           displayTier = 'PADRÃO';
+      return { ...c, displayTier };
     });
   } else {
     list = list.map(c => ({ ...c, displayTier: c.tier }));
   }
 
-  // Render grouped by display tier
   let lastTier = '';
   list.forEach(c => {
     const tier = c.displayTier;
+    const taxa = c.displayTaxa;
 
-    if (tier !== lastTier) {
+    // Tier section header
+    if (c.semDados && lastTier !== 'SEM_DADOS') {
+      body.innerHTML += `<tr class="tier-sec"><td colspan="8" style="color:var(--muted)">● Sem contratos para ${activeProdFilter} no período selecionado</td></tr>`;
+      lastTier = 'SEM_DADOS';
+    } else if (!c.semDados && tier !== lastTier) {
       const tc     = {RESTRITO:'var(--red)',MODERADO:'var(--yel)',PADRÃO:'var(--grn)'}[tier];
-      const limite = {RESTRITO:'≥ 12%',MODERADO:'7–12%',PADRÃO:'< 7%'}[tier];
+      const limite = {RESTRITO:'> 28%',MODERADO:'20–28%',PADRÃO:'< 20%'}[tier];
       const nota   = isFiltered ? ` · ${activeProdFilter}` : ' · Taxa geral';
       body.innerHTML += `<tr class="tier-sec"><td colspan="8" style="color:${tc}">● ${tier} — Taxa${nota} ${limite}</td></tr>`;
       lastTier = tier;
     }
 
-    const taxa  = c.displayTaxa;
-    const bc    = taxa >= 12 ? 'var(--red)' : taxa >= 7 ? 'var(--yel)' : 'var(--grn)';
-    const barW  = Math.min(100, (taxa / 30) * 100);
+    const bc   = c.semDados ? 'var(--muted)' : taxa > 28 ? 'var(--red)' : taxa >= 20 ? 'var(--yel)' : taxa >= 7 ? 'var(--org)' : 'var(--grn)';
+    const barW = c.semDados ? 0 : Math.min(100, (taxa/30)*100);
 
-    // Delta badge vs general rate (only when filtered)
+    // Delta badge vs general rate (only when filtered and has data)
     let deltaBadge = '';
-    if (isFiltered) {
+    if (isFiltered && !c.semDados) {
       const diff = parseFloat((taxa - c.taxa).toFixed(1));
       if (Math.abs(diff) >= 2) {
         const cls   = diff > 0 ? 'delta-high' : 'delta-low';
         const arrow = diff > 0 ? '▲' : '▼';
-        deltaBadge  = ` <span class="taxa-delta ${cls}">${arrow}${Math.abs(diff)}pp vs geral</span>`;
+        deltaBadge  = ` <span class="taxa-delta ${cls}">${arrow}${Math.abs(diff).toFixed(1)}pp vs geral</span>`;
       }
     }
 
-    // Tier badge: show product tier when filtered, general tier in tooltip
+    // Tier badge
     const tierDisplay = isFiltered
-      ? tierBadge(c.displayTier) + `<span class="res-badge pill-muted" style="margin-left:4px;font-size:9px" title="Tier geral da cidade">geral: ${c.tier}</span>`
+      ? tierBadge(c.displayTier) + `<span class="res-badge pill-muted" style="margin-left:4px;font-size:9px">geral: ${c.tier}</span>`
       : tierBadge(c.tier);
 
+    // Thresholds: recalculate from product taxa when filter active
+    let sMin, sAprov, sCinza;
+    if (c.semDados) {
+      // No contracts for this product — show dashes, no threshold
+      sMin = '—'; sAprov = '—'; sCinza = '—';
+    } else if (isFiltered) {
+      let pdmin, pdaprov;
+      if (taxa > 28)       { pdmin=60; pdaprov=100; }
+      else if (taxa >= 20) { pdmin=30; pdaprov=60;  }
+      else                 { pdmin=0;  pdaprov=25;  }
+      sMin   = BASE + pdmin;
+      sAprov = BASE + pdaprov;
+      sCinza = `${sMin}–${sAprov-1}`;
+    } else {
+      sMin   = c.s_min;
+      sAprov = c.s_aprov;
+      sCinza = c.cinza;
+    }
+
     body.innerHTML += `<tr>
-      <td style="font-weight:500">${c.cidade}</td>
+      <td style="font-weight:500">${c.cidade}${c.baixoVolume ? '&nbsp;<span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 6px;border-radius:3px;font-family:monospace" title="Volume baixo">&#9888; baixo vol.</span>' : ''}</td>
       <td>${tierDisplay}</td>
       <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${(c.displayTotal||0).toLocaleString('pt-BR')}</td>
       <td style="text-align:right;font-family:'IBM Plex Mono',monospace">${c.displayInadim ?? '—'}</td>
       <td>
         <div class="taxa-bar">
           <div class="taxa-track"><div class="taxa-fill" style="width:${barW}%;background:${bc}"></div></div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${bc};font-weight:600">${taxa}%</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${bc};font-weight:600">${c.semDados ? '—' : taxa+'%'}</span>
           ${deltaBadge}
         </div>
       </td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600">&lt; ${c.s_min}</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--yel);font-weight:600">${c.cinza}</td>
-      <td style="font-family:'IBM Plex Mono',monospace;color:var(--grn);font-weight:600">≥ ${c.s_aprov}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:${c.semDados?'var(--muted)':'var(--red)'};font-weight:600">${c.semDados ? '—' : '&lt; '+sMin}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:${c.semDados?'var(--muted)':'var(--yel)'};font-weight:600">${sCinza}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:${c.semDados?'var(--muted)':'var(--grn)'};font-weight:600">${c.semDados ? '—' : '≥ '+sAprov}</td>
     </tr>`;
   });
 }
@@ -1620,9 +2381,443 @@ function saveHtml() {
 // ══════════════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════════════
-buildCitySelect();
-renderCityTable();
-renderProdTable();
+
+// ── EVOLUÇÃO ANUAL ───────────────────────────────────────────
+const MES_NOMES={'01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun',
+  '07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez'};
+
+// ── PERÍODO GLOBAL ────────────────────────────────────────────
+let G_DE  = COHORTS_ALL[0];
+let G_ATE = COHORTS_ALL[COHORTS_ALL.length - 1];
+
+function cohortLabel(c) {
+  if (!c || c.length < 7) return c;
+  return MES_NOMES[c.slice(5)] + '/' + c.slice(0,4);
+}
+
+function initPeriodSelects() {
+  const selDe = document.getElementById('g-de');
+  const selAte = document.getElementById('g-ate');
+  if (!selDe || !selAte) return;
+  COHORTS_ALL.forEach(c => {
+    const lbl = cohortLabel(c);
+    selDe.innerHTML  += `<option value="${c}">${lbl}</option>`;
+    selAte.innerHTML += `<option value="${c}">${lbl}</option>`;
+  });
+  selDe.value  = G_DE;
+  selAte.value = G_ATE;
+}
+
+function setGlobalPeriod(de, ate) {
+  G_DE  = de  < COHORTS_ALL[0] ? COHORTS_ALL[0] : de;
+  G_ATE = ate > COHORTS_ALL[COHORTS_ALL.length-1] ? COHORTS_ALL[COHORTS_ALL.length-1] : ate;
+  const selDe  = document.getElementById('g-de');
+  const selAte = document.getElementById('g-ate');
+  if (selDe)  selDe.value  = G_DE;
+  if (selAte) selAte.value = G_ATE;
+
+  // Highlight preset
+  ['2024','2025','2026','all','3m','6m','12m'].forEach(id => {
+    const btn = document.getElementById('gp-'+id);
+    if (btn) btn.classList.remove('active');
+  });
+
+  applyGlobalPeriod();
+}
+
+function setGlobalPeriodLast(n) {
+  const ate = COHORTS_ALL[COHORTS_ALL.length-1];
+  const de  = COHORTS_ALL[Math.max(0, COHORTS_ALL.length-n)];
+  setGlobalPeriod(de, ate);
+  const btn = document.getElementById('gp-'+n+'m');
+  if (btn) btn.classList.add('active');
+}
+
+function applyGlobalPeriod() {
+  G_DE  = document.getElementById('g-de')?.value  || G_DE;
+  G_ATE = document.getElementById('g-ate')?.value || G_ATE;
+
+  // Recalculate CIDADES from EVOLUCAO filtered by period
+  const newCidades = [];
+  // City name normalization map (typos/missing accents in source data)
+  const CITY_NORMALIZE = {'Olimpia':'Olímpia'};
+
+  // Pre-merge normalized cities in EVOLUCAO before processing
+  const evolucaoMerged = {};
+  Object.entries(EVOLUCAO).forEach(([cidade, prods]) => {
+    const cidadeNorm = CITY_NORMALIZE[cidade] || cidade;
+    if (!evolucaoMerged[cidadeNorm]) evolucaoMerged[cidadeNorm] = {};
+    Object.entries(prods).forEach(([prod, cohorts]) => {
+      if (!evolucaoMerged[cidadeNorm][prod]) evolucaoMerged[cidadeNorm][prod] = {};
+      Object.entries(cohorts).forEach(([cohort, vals]) => {
+        if (!evolucaoMerged[cidadeNorm][prod][cohort]) {
+          evolucaoMerged[cidadeNorm][prod][cohort] = {v:0, i:0};
+        }
+        evolucaoMerged[cidadeNorm][prod][cohort].v += vals.v;
+        evolucaoMerged[cidadeNorm][prod][cohort].i += vals.i;
+      });
+    });
+  });
+
+  Object.entries(evolucaoMerged).forEach(([cidade, prods]) => {
+    let totalV=0, totalI=0;
+    const prodTotals = {};
+    Object.entries(prods).forEach(([prod, cohorts]) => {
+      let pV=0, pI=0;
+      Object.entries(cohorts).forEach(([c, vals]) => {
+        if (c < G_DE || c > G_ATE) return;
+        pV += vals.v; pI += vals.i;
+        totalV += vals.v; totalI += vals.i;
+      });
+      if (pV >= 1) prodTotals[prod] = {total:pV, inadim:pI, taxa:parseFloat((pI/pV*100).toFixed(1))};
+    });
+    if (totalV < 2) return;  // only skip truly empty
+    const taxa = parseFloat((totalI/totalV*100).toFixed(1));
+    const baixoVolume = totalV < 30;  // flag for visual warning
+    let tier, dmin, daprov;
+    if (taxa > 28)      { tier='RESTRITO'; dmin=60; daprov=100; }
+    else if (taxa >= 20){ tier='MODERADO'; dmin=30; daprov=60; }
+    else                { tier='PADRÃO';   dmin=0;  daprov=25; }
+    newCidades.push({cidade, tier, total:totalV, inadim:totalI, taxa, dmin, daprov, baixoVolume});
+    CIDADE_PRODUTO[cidade] = prodTotals;
+  });
+
+  // Sort by taxa desc
+  newCidades.sort((a,b) => b.taxa - a.taxa);
+  CIDADES = newCidades;
+  TIER_MAP = {};
+  CIDADES.forEach(c => TIER_MAP[c.cidade] = c.tier);
+
+  // Update summary bar
+  const totV = newCidades.reduce((s,c)=>s+c.total,0);
+  const totI = newCidades.reduce((s,c)=>s+c.inadim,0);
+  const taxaG = totV>0 ? (totI/totV*100).toFixed(1)+'%' : '—';
+  const el = document.getElementById('g-total');
+  const etx = document.getElementById('g-taxa');
+  if (el)  el.textContent  = totV.toLocaleString('pt-BR');
+  if (etx) {
+    etx.textContent = taxaG;
+    const t = parseFloat(taxaG);
+    etx.style.color = t>28?'var(--red)':t>=20?'var(--yel)':'var(--grn)';
+  }
+
+  // Rebuild city select in simulator
+  buildCitySelect();
+  // Refresh city selector chips and count if panel is open
+  if (document.getElementById('citySelPanel')?.classList.contains('open')) rebuildCityChips();
+  updateCitySelCount();
+
+  // Re-render all tables
+  renderCityTable();
+  renderProdTable();
+  if (document.getElementById('tab-evolucao')?.classList.contains('active')) {
+    renderEvolucao();
+  }
+}
+
+// ── EVOLUÇÃO ANUAL (usa G_DE/G_ATE globais) ──────────────────
+function initEvolucaoSelect() {
+  const selCid = document.getElementById('evol-cidade');
+  if (!selCid) return;
+  const CITY_NM = {'Olimpia':'Olímpia'};
+  const cidadesEvol = [...new Set(Object.keys(EVOLUCAO).map(c => CITY_NM[c]||c))].sort();
+  cidadesEvol.forEach(c => {
+    selCid.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+}
+
+function renderEvolucao() {
+  const body     = document.getElementById('evolucaoBody');
+  const filCid   = document.getElementById('evol-cidade')?.value  || '';
+  const filProd  = document.getElementById('evol-produto')?.value || '';
+  // Use global period
+  const filDe    = G_DE;
+  const filAte   = G_ATE;
+  if (!body) return;
+  body.innerHTML = '';
+
+  const rows = [];
+  // Merge city name variants before rendering
+  const CITY_NORM2 = {'Olimpia':'Olímpia'};
+  const evolMerged2 = {};
+  Object.entries(EVOLUCAO).forEach(([cidade, prods]) => {
+    const cn = CITY_NORM2[cidade] || cidade;
+    if (!evolMerged2[cn]) evolMerged2[cn] = {};
+    Object.entries(prods).forEach(([prod, cohorts]) => {
+      if (!evolMerged2[cn][prod]) evolMerged2[cn][prod] = {};
+      Object.entries(cohorts).forEach(([cohort, vals]) => {
+        if (!evolMerged2[cn][prod][cohort]) evolMerged2[cn][prod][cohort] = {v:0, i:0};
+        evolMerged2[cn][prod][cohort].v += vals.v;
+        evolMerged2[cn][prod][cohort].i += vals.i;
+      });
+    });
+  });
+
+  Object.entries(evolMerged2).forEach(([cidade, prods]) => {
+    if (filCid && cidade !== filCid) return;
+    Object.entries(prods).forEach(([prod, cohorts]) => {
+      if (filProd && prod !== filProd) return;
+      Object.entries(cohorts).forEach(([cohort, vals]) => {
+        if (cohort < filDe || cohort > filAte) return;
+        if (vals.v < 1) return;  // show all
+        rows.push({cidade, prod, cohort, vendas:vals.v, inadim:vals.i,
+                   taxa:parseFloat((vals.i/vals.v*100).toFixed(1))});
+      });
+    });
+  });
+
+  rows.sort((a,b) => a.cidade.localeCompare(b.cidade)
+                  || a.prod.localeCompare(b.prod)
+                  || a.cohort.localeCompare(b.cohort));
+
+  // Summary
+  const totV = rows.reduce((s,r)=>s+r.vendas,0);
+  const totI = rows.reduce((s,r)=>s+r.inadim,0);
+  const taxaG = totV>0?(totI/totV*100).toFixed(1):'—';
+  const resumo = document.getElementById('evolResumo');
+  if (resumo) {
+    const bc = parseFloat(taxaG)>28?'var(--red)':parseFloat(taxaG)>=20?'var(--yel)':'var(--grn)';
+    resumo.style.display='flex';
+    resumo.innerHTML=`
+      <span>Período global: <strong style="color:var(--text)">${cohortLabel(filDe)} → ${cohortLabel(filAte)}</strong></span>
+      <span>Vendas: <strong style="color:var(--text);font-family:'IBM Plex Mono',monospace">${totV.toLocaleString('pt-BR')}</strong></span>
+      <span>Inadimpl.: <strong style="color:${bc};font-family:'IBM Plex Mono',monospace">${totI.toLocaleString('pt-BR')}</strong></span>
+      <span>Taxa: <strong style="color:${bc};font-family:'IBM Plex Mono',monospace">${taxaG}%</strong></span>
+      <span style="color:var(--border)">|</span>
+      <span style="font-size:11px">${[...new Set(rows.map(r=>r.cidade))].length} cidades · ${rows.length} cohorts</span>
+    `;
+  }
+
+  let lastCidade='', lastProd='', prevTaxa=null;
+  rows.forEach(r => {
+    if (r.cidade !== lastCidade) {
+      const tier = TIER_MAP[r.cidade]||'MODERADO';
+      const tc={RESTRITO:'var(--red)',MODERADO:'var(--yel)',PADRÃO:'var(--grn)'}[tier];
+      body.innerHTML+=`<tr class="tier-sec"><td colspan="7" style="color:${tc}">
+        🏙️ ${r.cidade} <span style="font-size:9px;margin-left:6px;opacity:.7">${tier}</span>
+      </td></tr>`;
+      lastCidade=r.cidade; lastProd=''; prevTaxa=null;
+    }
+    if (r.prod !== lastProd) {
+      body.innerHTML+=`<tr><td colspan="7" style="background:#1e2a3a;font-size:9px;
+        font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 13px;
+        color:var(--muted)">${r.prod}</td></tr>`;
+      lastProd=r.prod; prevTaxa=null;
+    }
+
+    let varBadge='<span style="color:var(--border);font-size:10px">—</span>';
+    if (prevTaxa!==null) {
+      const diff=parseFloat((r.taxa-prevTaxa).toFixed(1));
+      if (Math.abs(diff)>=0.5) {
+        const cls=diff>0?'delta-high':'delta-low';
+        varBadge=`<span class="taxa-delta ${cls}">${diff>0?'▲':'▼'} ${Math.abs(diff).toFixed(1)}pp</span>`;
+      } else {
+        varBadge=`<span class="taxa-delta" style="background:var(--surf2);color:var(--muted)">≈ estável</span>`;
+      }
+    }
+
+    const ano=parseInt(r.cohort.slice(0,4)), mes=parseInt(r.cohort.slice(5,7));
+    const mat=(2026-ano)*12+(6-mes);
+    let matBadge='';
+    if (mat===0)     matBadge=` <span style="background:rgba(107,114,128,.2);color:var(--muted);font-size:9px;padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace">0m</span>`;
+    else if(mat<=2)  matBadge=` <span style="background:rgba(232,76,61,.15);color:var(--red);font-size:9px;padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace">⚠${mat}m</span>`;
+    else if(mat<=5)  matBadge=` <span style="background:rgba(245,166,35,.15);color:var(--yel);font-size:9px;padding:1px 5px;border-radius:3px;font-family:'IBM Plex Mono',monospace">~${mat}m</span>`;
+
+    const bc=r.taxa>28?'var(--red)':r.taxa>=20?'var(--yel)':r.taxa>=7?'var(--org)':'var(--grn)';
+    const barW=Math.min(100,(r.taxa/45)*100);
+
+    body.innerHTML+=`<tr>
+      <td style="color:var(--muted);font-size:11px;white-space:nowrap">${r.cidade}</td>
+      <td style="color:var(--muted);font-size:11px">${r.prod}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:nowrap">${cohortLabel(r.cohort)}${matBadge}</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px">${r.vendas.toLocaleString('pt-BR')}</td>
+      <td style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px;color:${bc}">${r.inadim}</td>
+      <td><div class="taxa-bar">
+        <div class="taxa-track" style="width:70px"><div class="taxa-fill" style="width:${barW}%;background:${bc}"></div></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${bc};font-weight:600">${r.taxa}%</span>
+      </div></td>
+      <td>${varBadge}</td>
+    </tr>`;
+    prevTaxa=r.taxa;
+  });
+
+  if(!rows.length) body.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Sem dados para os filtros selecionados.</td></tr>';
+}
+
+// ── SELEÇÃO DE MUNICÍPIOS ────────────────────────────────────
+let CIDADES_VISIVEIS = new Set(); // empty = all visible
+
+function toggleCitySel() {
+  const panel = document.getElementById('citySelPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) rebuildCityChips();
+}
+
+function rebuildCityChips() {
+  const grid = document.getElementById('cityChips');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const tierColor = {RESTRITO:'var(--red)',MODERADO:'var(--yel)',PADRÃO:'var(--grn)'};
+  const tierBg    = {RESTRITO:'rgba(232,76,61,.15)',MODERADO:'rgba(245,166,35,.15)',PADRÃO:'rgba(46,204,113,.15)'};
+  const tierOrder = {RESTRITO:0,MODERADO:1,PADRÃO:2};
+  const sorted = [...CIDADES].sort((a,b) =>
+    (tierOrder[a.tier]||3) - (tierOrder[b.tier]||3) || a.cidade.localeCompare(b.cidade)
+  );
+  sorted.forEach(c => {
+    const isVisible = CIDADES_VISIVEIS.size === 0 || CIDADES_VISIVEIS.has(c.cidade);
+    const chip = document.createElement('div');
+    chip.className = 'city-chip' + (isVisible ? ' selected' : '');
+    chip.dataset.cidade = c.cidade;
+    chip.innerHTML = `<span class="chip-check">${isVisible ? '✓' : '○'}</span>
+      <span>${c.cidade}</span>
+      <span class="chip-tier" style="background:${tierBg[c.tier]||'var(--surf2)'};color:${tierColor[c.tier]||'var(--muted)'}">${c.tier||''}</span>
+      ${c.baixoVolume ? '<span style="font-size:9px;color:var(--muted)">⚠</span>' : ''}`;
+    chip.onclick = () => toggleCity(c.cidade, chip);
+    grid.appendChild(chip);
+  });
+  updateCitySelCount();
+}
+
+function toggleCity(cidade, chip) {
+  if (CIDADES_VISIVEIS.size === 0) {
+    CIDADES.forEach(c => CIDADES_VISIVEIS.add(c.cidade));
+  }
+  if (CIDADES_VISIVEIS.has(cidade)) {
+    CIDADES_VISIVEIS.delete(cidade);
+    chip.classList.remove('selected');
+    chip.querySelector('.chip-check').textContent = '○';
+  } else {
+    CIDADES_VISIVEIS.add(cidade);
+    chip.classList.add('selected');
+    chip.querySelector('.chip-check').textContent = '✓';
+  }
+  if (CIDADES_VISIVEIS.size === CIDADES.length) CIDADES_VISIVEIS = new Set();
+  updateCitySelCount();
+  renderCityTable();
+}
+
+function selectAllCities() {
+  CIDADES_VISIVEIS = new Set();
+  rebuildCityChips();
+  renderCityTable();
+}
+
+function selectNoneCities() {
+  CIDADES_VISIVEIS = new Set(['__none__']);
+  rebuildCityChips();
+  renderCityTable();
+}
+
+function selectByTier(tier) {
+  CIDADES_VISIVEIS = new Set(CIDADES.filter(c => c.tier === tier).map(c => c.cidade));
+  rebuildCityChips();
+  renderCityTable();
+}
+
+function updateCitySelCount() {
+  const el = document.getElementById('citySelCount');
+  if (!el) return;
+  if (CIDADES_VISIVEIS.size === 0) {
+    el.textContent = '(' + CIDADES.length + ' de ' + CIDADES.length + ')';
+    el.style.color = 'var(--grn)';
+  } else if (CIDADES_VISIVEIS.has('__none__')) {
+    el.textContent = '(0 de ' + CIDADES.length + ')';
+    el.style.color = 'var(--red)';
+  } else {
+    const n = CIDADES_VISIVEIS.size;
+    el.textContent = '(' + n + ' de ' + CIDADES.length + ')';
+    el.style.color = n < CIDADES.length ? 'var(--yel)' : 'var(--grn)';
+  }
+}
+
+
+// ── COMPARTILHAR — versão para usuário final ────────────────
+function shareHtml() {
+  let src = document.documentElement.outerHTML;
+
+  // Embed current data using string replacement (no regex)
+  function replaceBlock(s, startMarker, endMarker, replacement) {
+    const a = s.indexOf(startMarker);
+    if (a < 0) return s;
+    const b = s.indexOf(endMarker, a);
+    if (b < 0) return s;
+    return s.slice(0, a) + replacement + s.slice(b + endMarker.length);
+  }
+
+  // Embed CIDADES
+  src = replaceBlock(src, 'let CIDADES = [', '];',
+    'let CIDADES = ' + JSON.stringify(CIDADES, null, 2) + ';\n  ');
+
+  // Embed EVOLUCAO
+  src = replaceBlock(src, 'const EVOLUCAO = {', '};',
+    'const EVOLUCAO = ' + JSON.stringify(EVOLUCAO) + ';\n  ');
+
+  // Embed CIDADE_PRODUTO
+  src = replaceBlock(src, 'const CIDADE_PRODUTO = {', '};',
+    'const CIDADE_PRODUTO = ' + JSON.stringify(CIDADE_PRODUTO) + ';\n  ');
+
+  // Remove Compartilhar button
+  const btnShare = src.indexOf('onclick="shareHtml()"');
+  if (btnShare > -1) {
+    const btnStart = src.lastIndexOf('<button', btnShare);
+    const btnEnd   = src.indexOf('</button>', btnShare) + 9;
+    if (btnStart > -1 && btnEnd > 9) src = src.slice(0, btnStart) + src.slice(btnEnd);
+  }
+
+  // Remove Atualizar Base button
+  const btnImport = src.indexOf('onclick="toggleImport()"');
+  if (btnImport > -1) {
+    const btnStart = src.lastIndexOf('<button', btnImport);
+    const btnEnd   = src.indexOf('</button>', btnImport) + 9;
+    if (btnStart > -1 && btnEnd > 9) src = src.slice(0, btnStart) + src.slice(btnEnd);
+  }
+
+  // Remove import panel
+  const impStart = src.indexOf('<!-- IMPORT PANEL -->');
+  if (impStart > -1) {
+    let depth=0, pos=impStart, found=-1;
+    while (pos < src.length-6) {
+      if (src.slice(pos,pos+4)==='<div') depth++;
+      if (src.slice(pos,pos+6)==='</div>') { depth--; if(depth===0){found=pos+6;break;} }
+      pos++;
+    }
+    if (found > -1) src = src.slice(0, impStart) + src.slice(found);
+  }
+
+  // Update badge
+  const now   = new Date();
+  const stamp = now.toLocaleDateString('pt-BR', {month:'short', year:'numeric'});
+  const bStart = src.indexOf('id="dataBadge">');
+  const bEnd   = src.indexOf('<', bStart + 15);
+  if (bStart > -1 && bEnd > -1) {
+    src = src.slice(0, bStart) + 'id="dataBadge">Compartilhado · ' + stamp + src.slice(bEnd);
+  }
+
+  // Download
+  const d = now.getFullYear() +
+    ('0'+(now.getMonth()+1)).slice(-2) +
+    ('0'+now.getDate()).slice(-2);
+  const blob = new Blob([src], {type:'text/html;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'crivo_turbonet_' + d + '.html';
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Feedback
+  const fbBtn = document.querySelector('[onclick="shareHtml()"]');
+  if (fbBtn) {
+    const orig = fbBtn.innerHTML;
+    fbBtn.innerHTML = '✓ Baixando...';
+    setTimeout(() => fbBtn.innerHTML = orig, 2000);
+  }
+}
+
+initPeriodSelects();
+applyGlobalPeriod();
+initEvolucaoSelect();
+updateCitySelCount();
 </script>
 
 
